@@ -84,13 +84,10 @@ class _MyWidgetState extends State<MyWidget> {
                 Column(
                   children: [
                     _circles('1', Colors.white, _gradient),
-                    Text('Sellect'),
+                    const Text('Sellect'),
                   ],
                 ),
-                Image.asset(
-                  'assets/line.png',
-                  width: 68,
-                ),
+                _itemLine(),
                 Column(
                   children: [
                     _circles('2', Colors.black45),
@@ -100,10 +97,7 @@ class _MyWidgetState extends State<MyWidget> {
                     ),
                   ],
                 ),
-                Image.asset(
-                  'assets/line.png',
-                  width: 68,
-                ),
+                _itemLine(),
                 Column(
                   children: [
                     _circles('3', Colors.black45),
@@ -171,6 +165,18 @@ class _MyWidgetState extends State<MyWidget> {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Expanded _itemLine() {
+    return const Expanded(
+      child: Divider(
+        color: Color(0xffDFDFDF),
+        thickness: 1,
+        height: 10,
+        indent: 10,
+        endIndent: 10,
       ),
     );
   }
