@@ -56,21 +56,22 @@ class _MyWidgetState extends State<MyWidget> {
         ],
       ),
       body: ListView(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 23, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Add wallet to pay',
                     style: kTextstyle(size: 24, color: textColor)),
-                SizedBox(
+                const SizedBox(
                   height: 4,
                 ),
                 Text('Easy to sell your Digital Art with 3 step',
                     style: kTextstyle(
                         size: 16,
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w400,
                         color: textColor)),
               ],
             ),
@@ -114,10 +115,16 @@ class _MyWidgetState extends State<MyWidget> {
             ),
           ),
           _itemWallet('Bank wallet'),
+          const SizedBox(
+            height: 15,
+          ),
           _itemWallet('Coin wallet'),
+          const SizedBox(
+            height: 15,
+          ),
           _itemWallet('Wallet connect'),
           Padding(
-            padding: const EdgeInsets.only(top: 30),
+            padding: const EdgeInsets.only(top: 143),
             child: Image.asset(
               'assets/biglogo.png',
               width: 177,
@@ -173,44 +180,7 @@ class _MyWidgetState extends State<MyWidget> {
     return Text(
       text,
       style:
-          TextStyle(color: Colors.black, fontSize: 26, fontWeight: fontWeight),
-    );
-  }
-
-  Padding _itemWallet(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      child: Container(
-        alignment: Alignment.center,
-        height: 100,
-        width: 343,
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(20)),
-        child: ListTile(
-          leading: Container(
-            alignment: Alignment.center,
-            width: 60,
-            height: 100,
-            decoration: BoxDecoration(
-                color: const Color(0xffDCDCDC),
-                borderRadius: BorderRadius.circular(20)),
-            child: const Text(
-              '+',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w300),
-            ),
-          ),
-          title: Text(
-            text,
-            style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xff555555)),
-          ),
-        ),
-      ),
+          TextStyle(color: Colors.black, fontSize: 30, fontWeight: fontWeight),
     );
   }
 
@@ -225,6 +195,53 @@ class _MyWidgetState extends State<MyWidget> {
         text,
         style:
             TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  Container _itemWallet(String text) {
+    return Container(
+      alignment: Alignment.center,
+      width: 343,
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        padding: const EdgeInsets.only(left: 13),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () {},
+              child: Container(
+                alignment: Alignment.center,
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  color: Color(0xffEEEEEE),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Color(0xff14142B),
+                  size: 24,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 19),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Color(0xff555555),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
