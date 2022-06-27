@@ -66,6 +66,12 @@ class SubscriptInfoPage extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Color(0xff15151b),
+                          offset: Offset(0, 4),
+                          blurRadius: 4),
+                    ],
                     gradient: _gradient,
                     borderRadius: BorderRadius.circular(16)),
                 child: Container(
@@ -102,6 +108,12 @@ class SubscriptInfoPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16)),
                 child: Container(
                   decoration: BoxDecoration(
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0xff15151b),
+                            offset: Offset(0, 4),
+                            blurRadius: 4),
+                      ],
                       color: const Color(0xff26262f),
                       borderRadius: BorderRadius.circular(14)),
                   alignment: Alignment.center,
