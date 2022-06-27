@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'constant.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Page1 extends StatelessWidget {
+  const Page1({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -438,7 +434,7 @@ class _MyWidgetState extends State<MyWidget> {
 
   Container _ItemView(IconData icon, String title) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: Colors.white,
@@ -471,19 +467,22 @@ class _MyWidgetState extends State<MyWidget> {
   }
 
   Widget _itemTip(String text) {
-    return TextButton(
-      style: buttonStyle(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
+    return Padding(
+      padding: const EdgeInsets.only(right: 10, bottom: 30),
+      child: TextButton(
+        style: buttonStyle(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+          ),
+          borderRadius: 20,
+          side: const BorderSide(color: Colors.black26),
+          size: const Size(50, 30),
         ),
-        borderRadius: 20,
-        side: const BorderSide(color: Colors.black26),
-        size: const Size(50, 30),
-      ),
-      onPressed: () {},
-      child: Text(
-        text,
-        style: kTextstyle(size: 13, color: Colors.black54),
+        onPressed: () {},
+        child: Text(
+          text,
+          style: kTextstyle(size: 13, color: Colors.black54),
+        ),
       ),
     );
   }

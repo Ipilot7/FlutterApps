@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:page3/constant.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Page2 extends StatelessWidget {
+  const Page2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +52,7 @@ class _MyWidgetState extends State<MyWidget> {
         ],
       ),
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
@@ -134,54 +130,76 @@ class _MyWidgetState extends State<MyWidget> {
               _textEnd('Economy', FontWeight.w900),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-            margin:
-                const EdgeInsets.only(bottom: 15, top: 29, left: 15, right: 15),
-            width: double.infinity,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8), gradient: _gradient),
-            child: Text(
-              'Earn now',
-              style: kTextstyle(size: 20, fontWeight: FontWeight.bold),
+          InkWell(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              margin: const EdgeInsets.only(
+                  bottom: 15, top: 29, left: 15, right: 15),
+              width: double.infinity,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8), gradient: _gradient),
+              child: Text(
+                'Earn now',
+                style: kTextstyle(size: 20, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-            margin: const EdgeInsets.only(left: 15, right: 15),
-            width: double.infinity,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                border: Border.all(
-                  color: const Color(0xff0038F5),
+          InkWell(
+            onTap: () {},
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.only(left: 15, right: 15),
+                  height: 55,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: _gradient,
+                      borderRadius: BorderRadius.circular(13),
+                      color: Colors.white),
                 ),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white),
-            child: Text(
-              'Discover more',
-              style: kTextstyle(
-                  size: 20, fontWeight: FontWeight.w800, color: Colors.black54),
+                Container(
+                  height: 45,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white),
+                  child: Text(
+                    'Discover more',
+                    style: kTextstyle(
+                        size: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black54),
+                  ),
+                ),
+              ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
+//------------------------------------------------------------------------
   Expanded _itemLine() {
     return const Expanded(
-      child: Divider(
-        color: Color(0xffDFDFDF),
-        thickness: 1,
-        height: 10,
-        indent: 10,
-        endIndent: 10,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Divider(
+          color: Color(0xffDFDFDF),
+          thickness: 1,
+          height: 10,
+          indent: 10,
+          endIndent: 10,
+        ),
       ),
     );
   }
 
-//------------------------------------------------------------------------
   Text _textEnd(String text, FontWeight fontWeight) {
     return Text(
       text,
