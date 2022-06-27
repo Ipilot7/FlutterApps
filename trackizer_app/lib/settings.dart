@@ -30,11 +30,11 @@ class SubscriptInfoPage extends StatelessWidget {
         leading: Image.asset(
           'assets/Back.png',
         ),
-        backgroundColor: Color(0xff1c1c23),
+        backgroundColor: const Color(0xff1c1c23),
       ),
-      backgroundColor: Color(0xff1c1c23),
+      backgroundColor: const Color(0xff1c1c23),
       body: ListView(
-        padding: EdgeInsets.all(25),
+        padding: const EdgeInsets.all(25),
         children: [
           Column(
             children: [
@@ -56,7 +56,7 @@ class SubscriptInfoPage extends StatelessWidget {
               ),
               Text(
                 'j.doe@gmail.com',
-                style: kTextStyle(color: Color(0xffA2A2B5), size: 12),
+                style: kTextStyle(color: const Color(0xffA2A2B5), size: 12),
               ),
 
               Container(
