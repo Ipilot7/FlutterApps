@@ -3,9 +3,13 @@ import 'utils/border_button.dart';
 import 'utils/constants.dart';
 import 'utils/line_dash.dart';
 import 'utils/ticket_clipper.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
-  runApp(const MaterialApp(home: SubscriptInfoPage()));
+  runApp(const MaterialApp(
+    home: SubscriptInfoPage(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class SubscriptInfoPage extends StatelessWidget {
