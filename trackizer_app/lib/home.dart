@@ -1,11 +1,7 @@
-import 'package:floating_bottom_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import 'utils/constants.dart';
-//---------------------------bottomNav bar-------------------------------------
-
-//---------------------------bottomNav bar-------------------------------------
 
 void main() {
   runApp(const MaterialApp(
@@ -54,25 +50,43 @@ class _HomePage extends State<HomePage> {
                   ),
                 ),
                 CircularPercentIndicator(
-                  radius: 120.0,
-                  lineWidth: 13.0,
-                  animation: true,
-                  percent: 0.7,
-                  center: const Text(
-                    "70.0%",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-                  ),
-                ),
+                    radius: 120.0,
+                    lineWidth: 13.0,
+                    animation: true,
+                    percent: 0.7,
+                    center: Padding(
+                      padding: const EdgeInsets.only(top: 50),
+                      child: Column(
+                        children: [
+                          Image.asset('assets/logo.png'),
+                          SizedBox(
+                            height: 24,
+                          ),
+                          Text(
+                            '\$1,235',
+                            style: kTextStyle(size: 40),
+                          ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          Text(
+                            'This month bills',
+                            style:
+                                kTextStyle(color: Color(0xff83839C), size: 12),
+                          ),
+                          _seeBudgetButton(),
+                        ],
+                      ),
+                    )),
                 const SizedBox(
                   height: 25,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _cut('adas', 'adasd', Colors.orange),
-                    _cut('adas', 'adasd', Colors.orange),
-                    _cut('adas', 'adasd', Colors.orange),
+                    _cut('Active subs', '12', const Color(0xffffa799)),
+                    _cut('Highest subs', '\$19.99', const Color(0xffad7bff)),
+                    _cut('Lowest subs', '\$5.99', const Color(0xff7dffee)),
                   ],
                 ),
               ],
@@ -130,93 +144,69 @@ class _HomePage extends State<HomePage> {
                   'assets/onedrive.png', 'Microsoft OneDrive', '\$29.99'),
             ],
           ),
-          // Wrap(
-          //   children: [
-          //     Container(
-          //       width: 104,
-          //       margin: const EdgeInsets.only(bottom: 24, top: 8),
-          //       padding: const EdgeInsets.all(2),
-          //       alignment: Alignment.center,
-          //       decoration: BoxDecoration(
-          //           gradient: _gradient,
-          //           borderRadius: BorderRadius.circular(16)),
-          //       child: Stack(
-          //         children: [
-          //           Container(
-          //             decoration: BoxDecoration(
-          //                 color: const Color(0xff30303c),
-          //                 borderRadius: BorderRadius.circular(14)),
-          //             alignment: Alignment.center,
-          //             child: Row(children: [
-          //               Image.asset()
-          //             ]),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
-      bottomNavigationBar: AnimatedBottomNavigationBar(
-        bottomBarItems: const [
-          BottomBarItemsModel(
-            icon: Icon(Icons.home, size: 20),
-            iconSelected:
-                Icon(Icons.home, color: AppColors.cherryRed, size: 20),
-            title: 'Home',
-            dotColor: Colors.red,
-          ),
-          BottomBarItemsModel(
-            icon: Icon(Icons.search, size: 20),
-            iconSelected:
-                Icon(Icons.search, color: AppColors.cherryRed, size: 20),
-            dotColor: Colors.red,
-          ),
-          BottomBarItemsModel(
-            icon: Icon(Icons.person, size: 20),
-            iconSelected:
-                Icon(Icons.person, color: AppColors.cherryRed, size: 20),
-            dotColor: Colors.red,
-          ),
-          BottomBarItemsModel(
-            icon: Icon(Icons.settings, size: 20),
-            iconSelected:
-                Icon(Icons.settings, color: AppColors.cherryRed, size: 20),
-            dotColor: Colors.red,
-          ),
-        ],
-        bottomBarCenterModel: BottomBarCenterModel(
-          centerBackgroundColor: AppColors.cherryRed,
-          centerIcon: const FloatingCenterButton(
-            child: Icon(
-              Icons.add,
-              color: AppColors.white,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(left: 23, right: 23),
+        child: Container(
+          height: 64,
+          margin: const EdgeInsets.only(bottom: 24, top: 8),
+          padding: const EdgeInsets.all(2),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              gradient: _gradient, borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            decoration: BoxDecoration(
+                color: const Color(0xff30303c),
+                borderRadius: BorderRadius.circular(14)),
+            alignment: Alignment.center,
+            child: Stack(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset('assets/Home.png'),
+                    Image.asset('assets/Budgets.png'),
+                    SizedBox(
+                      width: 80,
+                      child: FloatingActionButton(
+                        onPressed: () {},
+                        backgroundColor: Color(0xffff8a71),
+                        child: const Icon(
+                          Icons.add,
+                        ),
+                      ),
+                    ),
+                    Image.asset('assets/Calendar.png'),
+                    Image.asset('assets/Credit Cards.png'),
+                  ],
+                ),
+              ],
             ),
           ),
-          centerIconChild: [
-            FloatingCenterButtonChild(
-              child: const Icon(
-                Icons.home,
-                color: AppColors.white,
-              ),
-              onTap: () {},
-            ),
-            FloatingCenterButtonChild(
-              child: const Icon(
-                Icons.home,
-                color: AppColors.white,
-              ),
-              onTap: () {},
-            ),
-            FloatingCenterButtonChild(
-              child: const Icon(
-                Icons.home,
-                color: AppColors.white,
-              ),
-              onTap: () {},
-            ),
-          ],
+        ),
+      ),
+    );
+  }
+
+  Container _seeBudgetButton() {
+    return Container(
+      width: 120,
+      height: 32,
+      margin: const EdgeInsets.only(bottom: 5, top: 5),
+      padding: const EdgeInsets.all(2),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          gradient: _gradient, borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+            color: const Color(0xff3e3e47),
+            borderRadius: BorderRadius.circular(14)),
+        alignment: Alignment.center,
+        child: Text(
+          'See your budget',
+          style: kTextStyle(
+              color: Colors.white, size: 12, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -300,8 +290,8 @@ class _HomePage extends State<HomePage> {
                   color: colored,
                   height: 0,
                   thickness: 2,
-                  indent: 20,
-                  endIndent: 20,
+                  indent: 23,
+                  endIndent: 23,
                 ),
               ),
             ],
