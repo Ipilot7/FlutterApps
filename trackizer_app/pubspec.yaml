@@ -34,6 +34,7 @@ dependencies:
   floating_bottom_bar: ^0.0.1
   
   percent_indicator: ^4.0.1
+  syncfusion_flutter_gauges: ^20.1.61
 
 
   # The following adds the Cupertino Icons font to your application.

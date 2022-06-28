@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+// import 'package:percent_indicator/percent_indicator.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import 'utils/constants.dart';
 
@@ -33,7 +34,7 @@ class _HomePage extends State<HomePage> {
         children: [
           Container(
             width: 375,
-            height: 429,
+            height: 500,
             alignment: Alignment.center,
             color: const Color(0xff292932),
             child: Column(
@@ -49,37 +50,67 @@ class _HomePage extends State<HomePage> {
                     ),
                   ),
                 ),
-                CircularPercentIndicator(
-                    radius: 120.0,
-                    lineWidth: 13.0,
-                    animation: true,
-                    percent: 0.7,
-                    center: Padding(
-                      padding: const EdgeInsets.only(top: 50),
-                      child: Column(
-                        children: [
-                          Image.asset('assets/logo.png'),
-                          SizedBox(
-                            height: 24,
-                          ),
-                          Text(
-                            '\$1,235',
-                            style: kTextStyle(size: 40),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            'This month bills',
-                            style:
-                                kTextStyle(color: Color(0xff83839C), size: 12),
-                          ),
-                          _seeBudgetButton(),
-                        ],
+                SfRadialGauge(
+                  axes: <RadialAxis>[
+                    RadialAxis(
+                      minimum: 0,
+                      maximum: 100,
+                      showLabels: false,
+                      showTicks: false,
+                      axisLineStyle: const AxisLineStyle(
+                        thickness: 0.1,
+                        cornerStyle: CornerStyle.bothCurve,
+                        color: Color(0xff30303c),
+                        thicknessUnit: GaugeSizeUnit.factor,
                       ),
-                    )),
-                const SizedBox(
-                  height: 25,
+                      // ignore: prefer_const_literals_to_create_immutables
+                      pointers: <GaugePointer>[
+                        const RangePointer(
+                          color: Color(0xffff8157),
+                          value: 80,
+                          cornerStyle: CornerStyle.bothCurve,
+                          width: 0.1,
+                          sizeUnit: GaugeSizeUnit.factor,
+                        ),
+                      ],
+                      annotations: [
+                        GaugeAnnotation(
+                            widget: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 100, left: 18),
+                              child: Column(
+                                children: [
+                                  Image.asset('assets/logo.png'),
+                                  const SizedBox(
+                                    height: 24,
+                                  ),
+                                  Text(
+                                    '\$1,235',
+                                    style: kTextStyle(size: 40),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Text(
+                                    'This month bills',
+                                    style: kTextStyle(
+                                        color: const Color(0xff83839C),
+                                        size: 12),
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                  ),
+                                  _seeBudgetButton(),
+                                ],
+                              ),
+                            )
+                          ],
+                        ))
+                      ],
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -171,7 +202,7 @@ class _HomePage extends State<HomePage> {
                       width: 80,
                       child: FloatingActionButton(
                         onPressed: () {},
-                        backgroundColor: Color(0xffff8a71),
+                        backgroundColor: const Color(0xffff8a71),
                         child: const Icon(
                           Icons.add,
                         ),
@@ -249,7 +280,7 @@ class _HomePage extends State<HomePage> {
       children: [
         Container(
           width: 104,
-          margin: const EdgeInsets.only(bottom: 24, top: 8),
+          margin: const EdgeInsets.only(bottom: 10, top: 8),
           padding: const EdgeInsets.all(2),
           alignment: Alignment.center,
           decoration: BoxDecoration(
