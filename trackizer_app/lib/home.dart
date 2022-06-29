@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 // import 'package:percent_indicator/percent_indicator.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
-
+import 'settings.dart';
 import 'utils/constants.dart';
 
 void main() {
   runApp(const MaterialApp(
-    home: HomePage(),
+    home: Home(),
     debugShowCheckedModeBanner: false,
   ));
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePage();
+  State<Home> createState() => _Home();
 }
 
-class _HomePage extends State<HomePage> {
+class _Home extends State<Home> {
   final Color textColorWhite = const Color(0xffffffff);
   final Color textColor1 = const Color(0xffA2A2B5);
   final LinearGradient _gradient = const LinearGradient(
@@ -43,10 +43,20 @@ class _HomePage extends State<HomePage> {
                   alignment: Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 23, top: 40),
-                    child: Image.asset(
-                      'assets/settings.png',
-                      width: 24,
-                      height: 24,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Settings(),
+                          ),
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/settings.png',
+                        width: 24,
+                        height: 24,
+                      ),
                     ),
                   ),
                 ),
@@ -99,7 +109,7 @@ class _HomePage extends State<HomePage> {
                                         color: const Color(0xff83839C),
                                         size: 12),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 40,
                                   ),
                                   _seeBudgetButton(),

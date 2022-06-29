@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:trackizer_app/home.dart';
 import 'utils/constants.dart';
 import 'package:flutter/cupertino.dart';
+import 'home.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    home: SubscriptInfoPage(),
-    debugShowCheckedModeBanner: false,
-  ));
+
+
+class Settings extends StatefulWidget {
+  const Settings({Key? key}) : super(key: key);
+
+  @override
+  State<Settings> createState() => _Settings();
 }
 
-class SubscriptInfoPage extends StatelessWidget {
-  const SubscriptInfoPage({Key? key}) : super(key: key);
+class _Settings extends State<Settings> {
   final Color textColorWhite = const Color(0xffffffff);
   final Color textColor1 = const Color(0xffA2A2B5);
   final LinearGradient _gradient = const LinearGradient(
@@ -27,8 +30,17 @@ class SubscriptInfoPage extends StatelessWidget {
           'Settings',
           style: kTextStyle(color: const Color(0xffA2A2B5), size: 16),
         ),
-        leading: Image.asset(
-          'assets/Back.png',
+        leading: InkWell(onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Home(),
+                ),
+              );
+            },
+          child: Image.asset(
+            'assets/Back.png',
+          ),
         ),
         backgroundColor: const Color(0xff1c1c23),
       ),
@@ -193,11 +205,7 @@ class SubscriptInfoPage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-//------------------------------------------------------------------------------
-  InkWell _itemButton(String src, String text, String text2) {
+    );} InkWell _itemButton(String src, String text, String text2) {
     return InkWell(
       child: ListTile(
           leading: Image.asset(
@@ -246,5 +254,4 @@ class SubscriptInfoPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
+  }}
