@@ -51,11 +51,14 @@ class _Login extends State<Login> {
             decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: textColorWhite, width: 2),
                 ),
                 focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: textColorWhite, width: 2),
+                ),
+                disabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: textColorWhite, width: 2))),
+                    borderSide: BorderSide(color: textColor))),
           ),
           const SizedBox(height: 16),
           Text(
@@ -69,13 +72,15 @@ class _Login extends State<Login> {
             style: kTextStyle(),
             obscureText: true,
             decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: textColorWhite, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: textColorWhite, width: 2))),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: textColorWhite, width: 2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: textColorWhite, width: 2),
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           Row(
