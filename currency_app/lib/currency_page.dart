@@ -77,10 +77,12 @@ class _CurrencyPageState extends State<CurrencyPage> {
               child: TextField(
                 onChanged: (text) {
                   setState(() {
-                    list = listCurrency.where((value) => value.ccyNmUz!
+                    list = listCurrency
+                        .where((value) => value.ccyNmUz!
                             .toLowerCase()
                             .startsWith(
-                                textEditingController.text.toLowerCase())).toList();
+                                textEditingController.text.toLowerCase()))
+                        .toList();
                     listCurrency.forEach(
                       (element) => print(element.ccyNmUz),
                     );
@@ -135,7 +137,14 @@ class _CurrencyPageState extends State<CurrencyPage> {
               list.length,
               // listCurrency.length,
               (index) => InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context)
+                    ..pop()
+                    ..setState(() {
+                      topCur = list[index];
+                      print(topCur);
+                    });
+                },
                 child: ListTile(
                   leading: SvgPicture.asset(
                     'assets/${list[index].ccy.toString().substring(0, 2).toLowerCase()}.svg',

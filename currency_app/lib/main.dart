@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
 import 'utils.dart';
 import 'currency_model.dart';
+
 // import 'package:lesson1/utils/constants.dart';
 // import 'package:lesson1/utils/routes.dart';
 void main(List<String> args) {
@@ -23,15 +24,17 @@ class ComparePage extends StatefulWidget {
   @override
   State<ComparePage> createState() => _ComparePageState();
 }
+
 final List<CurrencyModel> listCurrency = [];
+CurrencyModel? topCur;
+CurrencyModel? bottomCur;
+
 class _ComparePageState extends State<ComparePage> {
   final TextEditingController _editingControllerTop = TextEditingController();
-  final TextEditingController _editingControllerBottom = TextEditingController();
+  final TextEditingController _editingControllerBottom =
+      TextEditingController();
   final FocusNode _topFocus = FocusNode();
   final FocusNode _bottomFocus = FocusNode();
-  
-  CurrencyModel? topCur;
-  CurrencyModel? bottomCur;
 
   @override
   void initState() {
@@ -77,7 +80,8 @@ class _ComparePageState extends State<ComparePage> {
 
   Future<bool?> _loadData() async {
     try {
-      var response = await get(Uri.parse('https://cbu.uz/uz/arkhiv-kursov-valyut/json/'));
+      var response =
+          await get(Uri.parse('https://cbu.uz/uz/arkhiv-kursov-valyut/json/'));
       if (response.statusCode == 200) {
         for (final item in jsonDecode(response.body)) {
           var model = CurrencyModel.fromJson(item);
@@ -132,7 +136,8 @@ class _ComparePageState extends State<ComparePage> {
                       children: [
                         TextSpan(
                           text: 'Wellcome Back',
-                          style: kTextStyle(size: 20, fontWeight: FontWeight.bold),
+                          style:
+                              kTextStyle(size: 20, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -176,7 +181,8 @@ class _ComparePageState extends State<ComparePage> {
                               children: [
                                 Text(
                                   'Exchange',
-                                  style: kTextStyle(size: 16, fontWeight: FontWeight.w600),
+                                  style: kTextStyle(
+                                      size: 16, fontWeight: FontWeight.w600),
                                 ),
                                 IconButton(
                                   onPressed: () {},
@@ -194,11 +200,13 @@ class _ComparePageState extends State<ComparePage> {
                               children: [
                                 Column(
                                   children: [
-                                    _itemExch(_editingControllerTop, topCur, _topFocus),
+                                    _itemExch(_editingControllerTop, topCur,
+                                        _topFocus),
                                     const SizedBox(
                                       height: 15,
                                     ),
-                                    _itemExch(_editingControllerBottom, bottomCur, _bottomFocus),
+                                    _itemExch(_editingControllerBottom,
+                                        bottomCur, _bottomFocus),
                                   ],
                                 ),
                                 InkWell(
@@ -258,11 +266,14 @@ class _ComparePageState extends State<ComparePage> {
     );
   }
 
-  Widget _itemExch(TextEditingController controller, CurrencyModel? model, FocusNode focusNode) {
+  Widget _itemExch(TextEditingController controller, CurrencyModel? model,
+      FocusNode focusNode) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: Colors.white12), borderRadius: BorderRadius.circular(15)),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white12),
+          borderRadius: BorderRadius.circular(15)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -279,16 +290,20 @@ class _ComparePageState extends State<ComparePage> {
                     border: InputBorder.none,
                     isDense: true,
                     hintText: '0.00',
-                    hintStyle: kTextStyle(size: 24, fontWeight: FontWeight.bold),
+                    hintStyle:
+                        kTextStyle(size: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               GestureDetector(
                 // onTap: () => Navigator.pushNamed(context, Routes.currencyPage),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const CurrencyPage()))),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: ((context) => const CurrencyPage()))),
                 child: Container(
                   padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: const Color(0xff10a4d4)),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: const Color(0xff10a4d4)),
                   child: Row(children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -302,7 +317,8 @@ class _ComparePageState extends State<ComparePage> {
                       padding: const EdgeInsets.only(left: 5, right: 10),
                       child: Text(
                         model?.ccy ?? 'UNK',
-                        style: kTextStyle(size: 16, fontWeight: FontWeight.w600),
+                        style:
+                            kTextStyle(size: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
                     const Icon(
@@ -316,8 +332,11 @@ class _ComparePageState extends State<ComparePage> {
             ],
           ),
           Text(
-            controller.text.isNotEmpty ? (double.parse(controller.text) * 0.05).toStringAsFixed(2) : '0.00',
-            style: kTextStyle(fontWeight: FontWeight.w600, color: Colors.white54),
+            controller.text.isNotEmpty
+                ? (double.parse(controller.text) * 0.05).toStringAsFixed(2)
+                : '0.00',
+            style:
+                kTextStyle(fontWeight: FontWeight.w600, color: Colors.white54),
           )
         ],
       ),
