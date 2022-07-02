@@ -25,36 +25,10 @@ class CurrencyPage extends StatefulWidget {
   @override
   State<CurrencyPage> createState() => _CurrencyPageState();
 
-  // Future<bool?> _loadData() async {
-  //   try {
-  //     var response =
-  //         await get(Uri.parse('https://cbu.uz/uz/arkhiv-kursov-valyut/json/'));
-  //     if (response.statusCode == 200) {
-  //       for (final item in jsonDecode(response.body)) {
-  //         var model = CurrencyModel.fromJson(item);
-  //         list.add(model);
-  //       }
-  //     }
-  //   } on SocketException {
-  //     log('Connection error');
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-  //   return null;
-  // }
+  
 }
 
-// _showMessage(String text, {bool isError = true}) {
-//   ScaffoldMessenger.of(context).showSnackBar(
-//     SnackBar(
-//       backgroundColor: isError ? Colors.red : Colors.green[400],
-//       content: Text(
-//         text,
-//         style: kTextStyle(size: 15, fontWeight: FontWeight.w500),
-//       ),
-//     ),
-//   );
-// }
+
 
 class _CurrencyPageState extends State<CurrencyPage> {
   final textEditingController = TextEditingController();
