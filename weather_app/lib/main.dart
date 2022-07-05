@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
@@ -7,7 +7,9 @@ import 'constants.dart';
 import 'utils.dart';
 import 'weather_model.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(WeatherModelAdapter());
   runApp(const MaterialApp(
     home: MyWidget(),
     debugShowCheckedModeBanner: false,
@@ -22,11 +24,13 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
+  // var box = Hive.box('myBox');
   List weatherList = [];
-  String city = "Ташкент";
-
+  var linkToCity = 'ferghana';
   WeatherModel model = WeatherModel();
   int? isActiveIndex;
+  var newCity = 'Tashkent';
+
   Future<bool> weatherInfo(String city) async {
     var response = await get(
       Uri.parse('https://pogoda.uz/$city'),
@@ -114,11 +118,11 @@ class _MyWidgetState extends State<MyWidget> {
         decoration:
             BoxDecoration(gradient: LinearGradient(colors: scafoldGradient)),
         child: FutureBuilder(
-          future: weatherInfo("tashkent"),
+          future: weatherInfo(linkToCity),
           builder: ((ctx, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               return ListView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 children: [
                   _appBar(),
                   _ItemWeatherBox(),
@@ -138,27 +142,32 @@ class _MyWidgetState extends State<MyWidget> {
                         top: 34, left: 25, right: 25, bottom: 25),
                     height: 200,
                     child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: BouncingScrollPhysics(),
-                        itemCount: 7,
-                        itemBuilder: (BuildContext context, int index) {
-                          return _itemWeek(
-                              '${model.weekDays?[index]}',
-                              '${model.days?[index]}',
-                              '${model.feeling?[index]}',
-                              '${model.tempDay?[index]}',
-                              '${model.rainPerc?[index]}',
-                              (isActiveIndex ?? 0) == index, () {
-                            setState(() {
-                              isActiveIndex = index;
-                            });
-                          });
-                        }),
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: 7,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _itemWeek(
+                          '${model.weekDays?[index]}',
+                          '${model.days?[index]}',
+                          '${model.feeling?[index]}',
+                          '${model.tempDay?[index]}',
+                          '${model.rainPerc?[index]}',
+                          (isActiveIndex ?? 0) == index,
+                          () {
+                            setState(
+                              () {
+                                isActiveIndex = index;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               );
             }
-            return Center();
+            return const Center();
           }),
         ),
       ),
@@ -184,7 +193,11 @@ class _MyWidgetState extends State<MyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              setState(() async {
+                await weatherInfo('tashkent');
+              });
+            },
             child: Container(
                 decoration: BoxDecoration(
                   boxShadow: [
@@ -213,12 +226,28 @@ class _MyWidgetState extends State<MyWidget> {
                     width: 15,
                     height: 17,
                   ),
-                  Text(
-                    'Фергана',
-                    style: kTextstyle(
-                        size: 20,
-                        color: textColorBlack,
-                        fontWeight: FontWeight.w600),
+                  DropdownButton(
+                    value: newCity,
+                    items: cityUz
+                        .map(
+                          (e) => DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(
+                              e,
+                              style: kTextstyle(
+                                color: textColorBlack,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        newCity = newValue!;
+                        linkToCity = newValue.toLowerCase();
+                      });
+                    },
                   ),
                 ],
               ),
@@ -266,7 +295,7 @@ class _MyWidgetState extends State<MyWidget> {
 
   Padding _ItemWeatherBox() {
     return Padding(
-      padding: EdgeInsets.all(25),
+      padding: const EdgeInsets.all(25),
       child: Stack(
         children: [
           Container(
@@ -333,8 +362,8 @@ class _MyWidgetState extends State<MyWidget> {
 
   Container _itemBoxInfo() {
     return Container(
-      margin: EdgeInsets.all(25),
-      padding: EdgeInsets.only(left: 20, right: 20),
+      margin: const EdgeInsets.all(25),
+      padding: const EdgeInsets.only(left: 20, right: 20),
       width: 340,
       height: 180,
       alignment: Alignment.center,
@@ -343,7 +372,7 @@ class _MyWidgetState extends State<MyWidget> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff5555555).withOpacity(0.05),
+            color: const Color(0xff555555).withOpacity(0.05),
             blurRadius: 30,
             offset: const Offset(5, 15),
           ),
@@ -359,7 +388,7 @@ class _MyWidgetState extends State<MyWidget> {
                 width: 25,
                 height: 25,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Expanded(
@@ -392,118 +421,6 @@ class _MyWidgetState extends State<MyWidget> {
               _itemAboutWeather('lun', 'Луна', model.block2?[3]),
               _itemAboutWeather('zak', 'Закат', model.block2?[5])
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  _itemWeekList() {
-    return Padding(
-      padding: const EdgeInsets.only(right: 25),
-      child: Container(
-        width: 66,
-        height: 190,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Пнд',
-              style: kTextstyle(size: 12, color: textColorBlack),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 5, bottom: 13),
-              child: Text(
-                '03 Июл',
-                style: kTextstyle(size: 10, color: textColorGrey),
-              ),
-            ),
-            Image.asset('assets/sun.png'),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10, top: 13),
-              child: Text(
-                '23°',
-                style: kTextstyle(size: 22, color: textColorBlack),
-              ),
-            ),
-            Container(
-              width: 30,
-              height: 20,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: colorGreen,
-              ),
-              child: Text(
-                '10%',
-                style: kTextstyle(size: 10),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  _itemWeekListGradient() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      width: 66,
-      height: 190,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: LinearGradient(
-          colors: gradient,
-        ),
-        boxShadow: [
-          BoxShadow(
-              color: const Color(0xFF9A60E5).withOpacity(0.50),
-              blurRadius: 30,
-              offset: const Offset(0, 5)),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Пнд',
-            style: kTextstyle(size: 12),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5, bottom: 13),
-            child: Text(
-              '03 Июл',
-              style: kTextstyle(size: 10),
-            ),
-          ),
-          Image.asset('assets/cloud.png'),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10, top: 13),
-            child: Text(
-              '23°',
-              style: kTextstyle(
-                size: 22,
-              ),
-            ),
-          ),
-          Container(
-            width: 30,
-            height: 20,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: colorGreen,
-            ),
-            child: Text(
-              '10%',
-              style: kTextstyle(size: 10),
-            ),
           ),
         ],
       ),
