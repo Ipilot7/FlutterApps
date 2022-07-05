@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart';
+import 'package:http/http.dart';
+import 'weather_model.dart';
 
 List<Color> gradient = const [
   Color(0xffE662E5),
@@ -25,3 +28,5 @@ List<String> list = [
   'Фергана',
   'Хива'
 ];
+
+ 
