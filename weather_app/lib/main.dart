@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
@@ -24,7 +26,7 @@ class _MyWidgetState extends State<MyWidget> {
   String city = "Ташкент";
 
   WeatherModel model = WeatherModel();
-
+  int? isActiveIndex;
   Future<bool> weatherInfo(String city) async {
     var response = await get(
       Uri.parse('https://pogoda.uz/$city'),
@@ -36,59 +38,73 @@ class _MyWidgetState extends State<MyWidget> {
       var today = document
           .getElementsByClassName('current-day')[0]
           .text; //Сегодня, 4 июля
-      model.today?.add(today);
+
       var tempDay = block1.getElementsByTagName("strong")[0].text; //+21
-      model.today?.add(tempDay);
 
       var oshushayetsa = document
           .getElementsByTagName('span~span~span')[0]
           .text; //ошушается 26 градус
-      model.today?.add(oshushayetsa);
 
       var yasno = document
           .getElementsByClassName("current-forecast-desc")[0]
           .text; //yasno
-      model.today?.add(yasno);
+      model.today = [today, tempDay, oshushayetsa, yasno];
       // model.today = [today, tempDay, oshushayetsa, yasno];
 
       ////// to block 2 list/////
       var konteyner2 =
           document.getElementsByClassName('current-forecast-details')[0];
-      var vla = konteyner2.getElementsByTagName('div p')[0].text;
-      var vet = konteyner2.getElementsByTagName('div p~p')[0].text;
-      var dav = konteyner2.getElementsByTagName('div p~p~p')[0].text;
-      var lun = konteyner2.getElementsByTagName('div~div p')[0].text;
-      var vos = konteyner2.getElementsByTagName('div~div p~p')[0].text;
-      var zak = konteyner2.getElementsByTagName('div~div p~p~p')[0].text;
-      model.block2 = [vla];
+      var vla = konteyner2.getElementsByTagName('div p')[0].text.substring(11);
+      var vet = konteyner2.getElementsByTagName('div p~p')[0].text.substring(7);
+      var dav =
+          konteyner2.getElementsByTagName('div p~p~p')[0].text.substring(9);
+      var lun =
+          konteyner2.getElementsByTagName('div~div p')[0].text.substring(6);
+      var vos =
+          konteyner2.getElementsByTagName('div~div p~p')[0].text.substring(8);
+      var zak =
+          konteyner2.getElementsByTagName('div~div p~p~p')[0].text.substring(7);
+      model.block2 = [vla, vet, dav, lun, vos, zak];
 
       //////3 недельный прогноз/////
-      var veatherTable = document.getElementsByClassName('weather-table')[0];
-      String text = '.weather-table';
+      var weekDays = [];
+      var days = [];
+      var tempDays = [];
 
-      var tr = veatherTable.getElementsByTagName('tr').length;
-      // var day2 = veatherTable.getElementsByTagName('tr~tr')[0].text;
-      List weekdays =
-          veatherTable.querySelectorAll("${text} tr~tr td~td strong"); //sr
-      List day = veatherTable
-          .querySelectorAll("${text} tr~tr td~td strong~div"); //6-iyul
-      List tempday = veatherTable
-          .querySelectorAll("${text} tr~tr td~td~td~td span"); //23 gradus
-      var osadki = veatherTable
-          .querySelectorAll("${text} tr~tr td~td~td~td~td~td "); //0%
+      var feelings = [];
+      var rainPercs = [];
 
-      // for (int i = 0; 0 < tr - 1; i++) {
-      //   var model = WeatherModel();
+      model.weekDays = weekDays;
+      model.days = days;
+      model.tempDay = tempDays;
+      model.rainPerc = rainPercs;
 
-      //   model.weekDays = weekdays[i].text;
-      //   model.days = day[i].text;
-      //   model.tempDay = tempday[i].text;
-      //   model.feeling = osadki[i].text;
-      // }
-      weatherList.add(model);
+      var weatherList = document
+          .getElementsByClassName('weather-table')[0]
+          .getElementsByTagName('tr');
+      for (var i = 1; i < weatherList.length; i++) {
+        weekDays.add(weatherList[i].getElementsByTagName('strong')[1].text);
+        days.add(weatherList[i].getElementsByTagName('div')[1].text);
+        tempDays
+            .add(weatherList[i].getElementsByClassName('forecast-day')[0].text);
+
+        feelings.add(
+            weatherList[i].getElementsByClassName('weather-row-desc')[0].text);
+        rainPercs.add(weatherList[i]
+            .getElementsByClassName('weather-row-pop')[0]
+            .text
+            .trim());
+      }
+
       return true;
     }
     return false;
+  }
+
+  @override
+  void initState() {
+    isActiveIndex = null;
+    super.initState();
   }
 
   @override
@@ -98,15 +114,15 @@ class _MyWidgetState extends State<MyWidget> {
         decoration:
             BoxDecoration(gradient: LinearGradient(colors: scafoldGradient)),
         child: FutureBuilder(
-          future: Weather().weatherInfo("tashkent"),
+          future: weatherInfo("tashkent"),
           builder: ((ctx, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               return ListView(
+                physics: BouncingScrollPhysics(),
                 children: [
                   _appBar(),
                   _ItemWeatherBox(),
                   _itemBoxInfo(),
-                  Text('ddss${model.block2?[0]}'),
                   Padding(
                     padding: const EdgeInsets.only(left: 25),
                     child: Text(
@@ -121,61 +137,28 @@ class _MyWidgetState extends State<MyWidget> {
                     margin: const EdgeInsets.only(
                         top: 34, left: 25, right: 25, bottom: 25),
                     height: 200,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _itemWeekListGradient(),
-                        // _itemWeekListGradient(),
-                        // _itemWeekListGradient(),
-                        // _itemWeekListGradient(),
-                        _itemWeekList(),
-                        _itemWeekList(),
-                        _itemWeekList(),
-                        _itemWeekList(),
-                        _itemWeekList(),
-                      ],
-                    ),
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: BouncingScrollPhysics(),
+                        itemCount: 7,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _itemWeek(
+                              '${model.weekDays?[index]}',
+                              '${model.days?[index]}',
+                              '${model.feeling?[index]}',
+                              '${model.tempDay?[index]}',
+                              '${model.rainPerc?[index]}',
+                              (isActiveIndex ?? 0) == index, () {
+                            setState(() {
+                              isActiveIndex = index;
+                            });
+                          });
+                        }),
                   ),
                 ],
               );
             }
-            return ListView(
-              children: [
-                _appBar(),
-                _ItemWeatherBox(),
-                _itemBoxInfo(),
-                Text('ddss${model.block2?[0]}'),
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Text(
-                    'Недельный прогноз',
-                    style: kTextstyle(
-                        size: 22,
-                        fontWeight: FontWeight.w700,
-                        color: textColorBlack),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(
-                      top: 34, left: 25, right: 25, bottom: 25),
-                  height: 200,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _itemWeekListGradient(),
-                      // _itemWeekListGradient(),
-                      // _itemWeekListGradient(),
-                      // _itemWeekListGradient(),
-                      _itemWeekList(),
-                      _itemWeekList(),
-                      _itemWeekList(),
-                      _itemWeekList(),
-                      _itemWeekList(),
-                    ],
-                  ),
-                ),
-              ],
-            );
+            return Center();
           }),
         ),
       ),
@@ -307,7 +290,7 @@ class _MyWidgetState extends State<MyWidget> {
                 Padding(
                   padding: const EdgeInsets.only(top: 120),
                   child: Text(
-                    'Ясно \n Baxtiyor',
+                    model.today?[3],
                     style: kTextstyle(size: 26),
                   ),
                 ),
@@ -315,11 +298,11 @@ class _MyWidgetState extends State<MyWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '21',
+                      model.today?[1],
                       style: kTextstyle(size: 75),
                     ),
                     Text(
-                      'Очищается 26°',
+                      'Ощушается ${model.today?[2]}',
                       style: kTextstyle(size: 15),
                     ),
                   ],
@@ -339,7 +322,7 @@ class _MyWidgetState extends State<MyWidget> {
             top: 45,
             right: 20,
             child: Text(
-              'Сегодня \n2 июля',
+              model.today?[0],
               style: kTextstyle(size: 16),
             ),
           ),
@@ -398,16 +381,16 @@ class _MyWidgetState extends State<MyWidget> {
             ],
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            _itemAboutWeather('dav', 'Давление', '753 мм рт. ст.'),
-            _itemAboutWeather('vet', 'Ветер', 'ЗСЗ, 5.4 м/c'),
-            _itemAboutWeather('vos', 'Восход', '04:46')
+            _itemAboutWeather('dav', 'Давление', model.block2?[2]),
+            _itemAboutWeather('vet', 'Ветер', model.block2?[1]),
+            _itemAboutWeather('vos', 'Восход', model.block2?[4])
           ]),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _itemAboutWeather('vla', 'Влажность', '10%'),
-              _itemAboutWeather('lun', 'Луна', 'Растущая Луна'),
-              _itemAboutWeather('zak', 'Закат', '19:46')
+              _itemAboutWeather('vla', 'Влажность', model.block2?[0]),
+              _itemAboutWeather('lun', 'Луна', model.block2?[3]),
+              _itemAboutWeather('zak', 'Закат', model.block2?[5])
             ],
           ),
         ],
@@ -558,68 +541,94 @@ class _MyWidgetState extends State<MyWidget> {
   }
 }
 
-class Weather {
-  var model = WeatherModel();
+Widget _itemWeek(String shortWeek, String shortDate, String feeling,
+    String temp, String perc, bool grd, void Function()? onClick) {
+  return InkWell(
+    onTap: onClick,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      width: 66,
+      height: 190,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(33),
+        gradient: grd
+            ? const LinearGradient(
+                colors: [
+                  Color(0xffE662E5),
+                  Color(0xff5364F0),
+                ],
+                transform: GradientRotation(2 * pi / 13),
+              )
+            : null,
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 17),
+          Text(
+            shortWeek,
+            style: kTextstyle(
+                size: 12,
+                fontWeight: FontWeight.w600,
+                color: grd ? Colors.white : Colors.black),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            shortDate,
+            style: kTextstyle(
+                size: 12,
+                fontWeight: FontWeight.w600,
+                color: grd ? Colors.white : Colors.grey),
+          ),
+          const SizedBox(height: 13),
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: Image(
+              image: _weatherIcon(feeling.trim()),
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 13),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 10),
+            child: Text(
+              temp,
+              style: kTextstyle(
+                  size: 22,
+                  fontWeight: FontWeight.w600,
+                  color: grd ? Colors.white : Colors.black),
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            width: 30,
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xff2DBE8D),
+            ),
+            child: Text(
+              perc,
+              style: kTextstyle(size: 10, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
-  var date = DateTime.now();
-
-  String? city = "Ташкент";
-  weatherInfo(String city) async {
-    WeatherModel model = WeatherModel();
-    var response = await get(
-      Uri.parse('https://pogoda.uz/$city'),
-    );
-    if (response.statusCode == 200) {
-      var document = parse(response.body);
-      var block1 = document.getElementsByClassName("grid-1 cont-block")[0];
-      //to today list//
-      var today = document
-          .getElementsByClassName('current-day')[0]
-          .text; //Сегодня, 4 июля
-      var tempDay = block1.getElementsByTagName("strong")[0].text; //+21
-      var oshushayetsa = document
-          .getElementsByTagName('span~span~span')[0]
-          .text; //ошушается 26 градус
-      var yasno = document
-          .getElementsByClassName("current-forecast-desc")[0]
-          .text; //yasno
-      model.today = [today, tempDay, tempDay, oshushayetsa, yasno];
-
-      ////// to block 2 list/////
-      var konteyner2 =
-          document.getElementsByClassName('current-forecast-details')[0];
-      var vla = konteyner2.getElementsByTagName('div p')[0].text;
-      var vet = konteyner2.getElementsByTagName('div p~p')[0].text;
-      var dav = konteyner2.getElementsByTagName('div p~p~p')[0].text;
-      var lun = konteyner2.getElementsByTagName('div~div p')[0].text;
-      var vos = konteyner2.getElementsByTagName('div~div p~p')[0].text;
-      var zak = konteyner2.getElementsByTagName('div~div p~p~p')[0].text;
-      model.block2 = [vla, vet, dav, lun, vos, zak];
-      print(model.block2?[0]);
-      //////3 недельный прогноз/////
-
-      var veatherTable = document.getElementsByClassName('weather-table')[0];
-      String text = '.weather-table';
-
-      var tr = veatherTable.getElementsByTagName('tr').length;
-      // var day2 = veatherTable.getElementsByTagName('tr~tr')[0].text;
-      List weekdays =
-          veatherTable.querySelectorAll("${text} tr~tr td~td strong"); //sr
-      List day = veatherTable
-          .querySelectorAll("${text} tr~tr td~td strong~div"); //6-iyul
-      List tempday = veatherTable
-          .querySelectorAll("${text} tr~tr td~td~td~td span"); //23 gradus
-      var osadki = veatherTable
-          .querySelectorAll("${text} tr~tr td~td~td~td~td~td "); //0%
-
-      // for (int i = 0; 0 < tr - 1; i++) {
-      //   var model = WeatherModel();
-
-      //   model.weekDays = weekdays[i].text;
-      //   model.days = day[i].text;
-      //   model.tempDay = tempday[i].text;
-      //   model.feeling = osadki[i].text;
-      // }
-    }
+AssetImage _weatherIcon(String? position) {
+  if (position!.trim().contains('ochiq havo')) {
+    return const AssetImage('assets/ic_sunny.png');
+  } else if (position.trim().contains('bulutli')) {
+    return const AssetImage('assets/ic_mist.png');
+  } else if (position.trim().contains("yomg'ir")) {
+    return const AssetImage('assets/ic_drizzle.png');
+  } else if (position.trim().contains("chaqmoq")) {
+    return const AssetImage('assets/ic_storm.png');
+  } else if (position.trim().contains("qor")) {
+    return const AssetImage('assets/ic_snow.png');
   }
+  return const AssetImage('assets/ic_cloudy.png');
 }
