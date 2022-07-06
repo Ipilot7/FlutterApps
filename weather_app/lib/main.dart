@@ -3,8 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
-import 'constants.dart';
-import 'utils.dart';
+import 'utils/constants.dart';
+import 'utils/utils.dart';
 import 'weather_model.dart';
 
 void main() async {
