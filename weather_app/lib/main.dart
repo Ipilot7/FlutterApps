@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +7,12 @@ import 'package:http/http.dart';
 import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'weather_model.dart';
+import 'utils/hive_util.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(WeatherModelAdapter());
+  Hive.registerAdapter<WeatherModel>(WeatherModelAdapter());
   runApp(const MaterialApp(
     home: MyWidget(),
     debugShowCheckedModeBanner: false,
@@ -23,86 +26,106 @@ class MyWidget extends StatefulWidget {
   State<MyWidget> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<MyWidget> {
-  // var box = Hive.box('myBox');
-  List weatherList = [];
-  var linkToCity = 'ferghana';
-  WeatherModel model = WeatherModel();
-  int? isActiveIndex;
-  var newCity = 'Tashkent';
+class _MyWidgetState extends State<MyWidget> with HiveUtil {
+  List<WeatherModel> listweather = [];
 
-  Future<bool> weatherInfo(String city) async {
-    var response = await get(
-      Uri.parse('https://pogoda.uz/$city'),
-    );
-    if (response.statusCode == 200) {
-      var document = parse(response.body);
-      var block1 = document.getElementsByClassName("grid-1 cont-block")[0];
-      //to today list//
-      var today = document
-          .getElementsByClassName('current-day')[0]
-          .text; //Сегодня, 4 июля
+  Future<bool?> weatherInfo(String city) async {
+    if (await loadLocalData()) {
+      try {
+        listweather.clear();
 
-      var tempDay = block1.getElementsByTagName("strong")[0].text; //+21
+        var response = await get(
+          Uri.parse('https://pogoda.uz/$city'),
+        );
+        if (response.statusCode == 200) {
+          var document = parse(response.body);
+          var block1 = document.getElementsByClassName("grid-1 cont-block")[0];
+          //to today list//
+          var today = document
+              .getElementsByClassName('current-day')[0]
+              .text
+              .substring(9); //Сегодня, 4 июля
 
-      var oshushayetsa = document
-          .getElementsByTagName('span~span~span')[0]
-          .text; //ошушается 26 градус
+          var tempDay = block1.getElementsByTagName("strong")[0].text; //+21
 
-      var yasno = document
-          .getElementsByClassName("current-forecast-desc")[0]
-          .text; //yasno
-      model.today = [today, tempDay, oshushayetsa, yasno];
-      // model.today = [today, tempDay, oshushayetsa, yasno];
+          var oshushayetsa = document
+              .getElementsByTagName('span~span~span')[0]
+              .text; //ошушается 26 градус
 
-      ////// to block 2 list/////
-      var konteyner2 =
-          document.getElementsByClassName('current-forecast-details')[0];
-      var vla = konteyner2.getElementsByTagName('div p')[0].text.substring(11);
-      var vet = konteyner2.getElementsByTagName('div p~p')[0].text.substring(7);
-      var dav =
-          konteyner2.getElementsByTagName('div p~p~p')[0].text.substring(9);
-      var lun =
-          konteyner2.getElementsByTagName('div~div p')[0].text.substring(6);
-      var vos =
-          konteyner2.getElementsByTagName('div~div p~p')[0].text.substring(8);
-      var zak =
-          konteyner2.getElementsByTagName('div~div p~p~p')[0].text.substring(7);
-      model.block2 = [vla, vet, dav, lun, vos, zak];
+          var yasno = document
+              .getElementsByClassName("current-forecast-desc")[0]
+              .text; //yasno
+          model.today = [today, tempDay, oshushayetsa, yasno];
+          // model.today = [today, tempDay, oshushayetsa, yasno];
 
-      //////3 недельный прогноз/////
-      var weekDays = [];
-      var days = [];
-      var tempDays = [];
+          ////// to block 2 list/////
+          var konteyner2 =
+              document.getElementsByClassName('current-forecast-details')[0];
+          var vla =
+              konteyner2.getElementsByTagName('div p')[0].text.substring(11);
+          var vet =
+              konteyner2.getElementsByTagName('div p~p')[0].text.substring(7);
+          var dav =
+              konteyner2.getElementsByTagName('div p~p~p')[0].text.substring(9);
+          var lun =
+              konteyner2.getElementsByTagName('div~div p')[0].text.substring(6);
+          var vos = konteyner2
+              .getElementsByTagName('div~div p~p')[0]
+              .text
+              .substring(8);
+          var zak = konteyner2
+              .getElementsByTagName('div~div p~p~p')[0]
+              .text
+              .substring(7);
+          model.block2 = [vla, vet, dav, lun, vos, zak];
 
-      var feelings = [];
-      var rainPercs = [];
+          //////3 недельный прогноз/////
+          var weekDays = [];
+          var days = [];
+          var tempDays = [];
 
-      model.weekDays = weekDays;
-      model.days = days;
-      model.tempDay = tempDays;
-      model.rainPerc = rainPercs;
+          var feelings = [];
+          var rainPercs = [];
 
-      var weatherList = document
-          .getElementsByClassName('weather-table')[0]
-          .getElementsByTagName('tr');
-      for (var i = 1; i < weatherList.length; i++) {
-        weekDays.add(weatherList[i].getElementsByTagName('strong')[1].text);
-        days.add(weatherList[i].getElementsByTagName('div')[1].text);
-        tempDays
-            .add(weatherList[i].getElementsByClassName('forecast-day')[0].text);
+          var weatherList = document
+              .getElementsByClassName('weather-table')[0]
+              .getElementsByTagName('tr');
+          for (var i = 1; i < weatherList.length; i++) {
+            weekDays.add(weatherList[i].getElementsByTagName('strong')[1].text);
+            days.add(weatherList[i].getElementsByTagName('div')[1].text);
+            tempDays.add(
+                weatherList[i].getElementsByClassName('forecast-day')[0].text);
 
-        feelings.add(
-            weatherList[i].getElementsByClassName('weather-row-desc')[0].text);
-        rainPercs.add(weatherList[i]
-            .getElementsByClassName('weather-row-pop')[0]
-            .text
-            .trim());
+            feelings.add(weatherList[i]
+                .getElementsByClassName('weather-row-desc')[0]
+                .text);
+            rainPercs.add(weatherList[i]
+                .getElementsByClassName('weather-row-pop')[0]
+                .text
+                .trim());
+          }
+
+          model.weekDays = weekDays;
+          model.days = days;
+          model.tempDay = tempDays;
+          model.rainPerc = rainPercs;
+
+          listweather.add(model);
+          await saveBox<String>(dateBox,
+              DateFormat('dd.MM.yyyy').format(DateTime.now()).toString());
+          await saveBox<List<WeatherModel>>(weatherBox, listweather);
+
+          return true;
+        } else {
+          _showMessage('Unknown Error');
+        }
+      } on SocketException {
+        _showMessage('Connection Error');
+      } catch (e) {
+        _showMessage(e.toString());
       }
-
-      return true;
     }
-    return false;
+    return null;
   }
 
   @override
@@ -118,6 +141,7 @@ class _MyWidgetState extends State<MyWidget> {
         decoration:
             BoxDecoration(gradient: LinearGradient(colors: scafoldGradient)),
         child: FutureBuilder(
+          // future: model == null ? weatherInfo(linkToCity) : null,
           future: weatherInfo(linkToCity),
           builder: ((ctx, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
@@ -174,6 +198,24 @@ class _MyWidgetState extends State<MyWidget> {
     );
   }
 
+  Future<bool> loadLocalData() async {
+    try {
+      var date = await getBox<String>(dateBox);
+      if (date ==
+          DateFormat('dd.MM.yyyy')
+              .format(DateTime.now().add(const Duration(days: -1)))) {
+        listweather = await getBox(weatherBox) ?? [];
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      _showMessage(e.toString());
+    }
+
+    return true;
+  }
+
   _showMessage(String text, {bool isError = true}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -193,11 +235,7 @@ class _MyWidgetState extends State<MyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           InkWell(
-            onTap: () {
-              setState(() async {
-                await weatherInfo('tashkent');
-              });
-            },
+            onTap: () {},
             child: Container(
                 decoration: BoxDecoration(
                   boxShadow: [
@@ -326,9 +364,13 @@ class _MyWidgetState extends State<MyWidget> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    GradientText(
                       model.today?[1],
-                      style: kTextstyle(size: 75),
+                      gradient: textGradient,
+                      style: const TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       'Ощушается ${model.today?[2]}',
@@ -351,7 +393,7 @@ class _MyWidgetState extends State<MyWidget> {
             top: 45,
             right: 20,
             child: Text(
-              model.today?[0],
+              'Сегодня\n${model.today?[0]}',
               style: kTextstyle(size: 16),
             ),
           ),
@@ -401,6 +443,11 @@ class _MyWidgetState extends State<MyWidget> {
                 ),
               ),
               InkWell(
+                onTap: () {
+                  setState(() {
+                    listweather.clear();
+                  });
+                },
                 child: Icon(
                   Icons.refresh,
                   color: textColorBlack,
@@ -411,7 +458,8 @@ class _MyWidgetState extends State<MyWidget> {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             _itemAboutWeather('dav', 'Давление', model.block2?[2]),
-            _itemAboutWeather('vet', 'Ветер', model.block2?[1]),
+            _itemAboutWeather(
+                'vet', 'Ветер', '${model.block2?[1].toString().split(',')[1]}'),
             _itemAboutWeather('vos', 'Восход', model.block2?[4])
           ]),
           Row(
@@ -548,4 +596,28 @@ AssetImage _weatherIcon(String? position) {
     return const AssetImage('assets/ic_snow.png');
   }
   return const AssetImage('assets/ic_cloudy.png');
+}
+
+class GradientText extends StatelessWidget {
+  const GradientText(
+    this.text, {
+    Key? key,
+    required this.gradient,
+    this.style,
+  }) : super(key: key);
+
+  final String text;
+  final TextStyle? style;
+  final Gradient gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => gradient.createShader(
+        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+      ),
+      child: Text(text, style: style),
+    );
+  }
 }
