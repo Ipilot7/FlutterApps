@@ -40,9 +40,6 @@ TextStyle kTextstyle(
       height: height);
 }
 
-
-
-
 Color nightBgClr = const Color(0xFF17171C);
 Color lightBgClr = const Color(0xFFF1F2F3);
 Color actionsClmnnClr = const Color(0xFF4B5EFC);
@@ -54,14 +51,11 @@ Color white = const Color(0xffffffff);
 Color buttons3night = const Color(0xFF4E505F);
 Color buttons3day = const Color(0xFFD2D3DA);
 
- 
-  
-
 final List<String> buttons = [
   'C',
   '-/+',
   '%',
-  '/',
+  '÷',
   '7',
   '8',
   '9',

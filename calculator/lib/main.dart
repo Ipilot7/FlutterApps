@@ -18,6 +18,9 @@ class Calculate extends StatefulWidget {
 }
 
 class _CalculateState extends State<Calculate> {
+  final userInput = TextEditingController();
+  final answer = TextEditingController();
+
   Alignment dayAlign = Alignment.centerLeft;
   Alignment nightAlign = Alignment.centerRight;
   Alignment switchAlign = Alignment.centerLeft;
@@ -53,9 +56,6 @@ class _CalculateState extends State<Calculate> {
       }
     });
   }
-
-  var userInput = '';
-  var answer = '';
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +119,10 @@ class _CalculateState extends State<Calculate> {
                 padding: EdgeInsets.only(top: size.height * 0.04),
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    answer,
+                  child: TextField(
+                    enabled: false,
+                    controller: answer,
+                    textAlign: TextAlign.right,
                     style: kTextstyle(
                       color: lastAction,
                       size: size.height * 0.04,
@@ -132,8 +134,9 @@ class _CalculateState extends State<Calculate> {
                 padding: const EdgeInsets.only(top: 15),
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    userInput,
+                  child: TextField(
+                    enabled: false,
+                    controller: userInput,
                     textAlign: TextAlign.right,
                     style: kTextstyle(
                       color: numTxtClr,
@@ -143,101 +146,108 @@ class _CalculateState extends State<Calculate> {
                 ),
               ),
               Expanded(
-                flex: 3,
                 child: Container(
                   child: GridView.builder(
-                      itemCount: buttons.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4),
-                      itemBuilder: (BuildContext context, int index) {
-                        // Очистить
-                        if (index == 0) {
-                          return MyButton(
-                            buttontapped: () {
-                              setState(() {
-                                userInput = '';
-                                answer = '0';
-                              });
-                            },
-                            buttonText: buttons[index],
-                            color: switchColor,
-                            textColor: numTxtClr,
-                          );
-                        }
-                        // +/-
-                        else if (index == 1) {
-                          return MyButton(
-                            buttonText: buttons[index],
-                            color: switchColor,
-                            textColor: numTxtClr,
-                            buttontapped: () {
-                              setState(() {
-                                userInput =
-                                    buttons[index].substring(0, 1) + userInput;
-                              });
-                            },
-                          );
-                        }
-                        // %
-                        else if (index == 2) {
-                          return MyButton(
-                            buttontapped: () {
-                              setState(() {
-                                var a = int.parse(userInput) / 100;
-                                userInput = a.toString();
-                                equalPressed();
-                              });
-                            },
-                            buttonText: buttons[index],
-                            color: switchColor,
-                            textColor: numTxtClr,
-                          );
-                        }
-                        // Удалить
-                        else if (index == 18) {
-                          return MyButton(
-                            buttontapped: () {
-                              setState(() {
-                                userInput = userInput.substring(
-                                    0, userInput.length - 1);
-                              });
-                            },
-                            buttonText: buttons[index],
-                            color: numClr,
-                            textColor: numTxtClr,
-                          );
-                        }
-                        // равно
-                        else if (index == 19) {
-                          return MyButton(
-                            buttontapped: () {
-                              setState(() {
-                                equalPressed();
-                                // equalPressed2();
-                              });
-                            },
-                            buttonText: buttons[index],
-                            color: actionsClmnnClr,
-                            textColor: numTxtClr,
-                          );
-                        }
-                        //  другие кнопки
-                        else {
-                          return MyButton(
-                            buttontapped: () {
-                              setState(() {
-                                userInput += buttons[index];
-                              });
-                            },
-                            buttonText: buttons[index],
-                            color: isOperator(buttons[index])
-                                ? actionsClmnnClr
-                                : numClr,
-                            textColor: numTxtClr,
-                          );
-                        }
-                      }),
+                    itemCount: buttons.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4),
+                    itemBuilder: (BuildContext context, int index) {
+                      // Очистить
+                      if (index == 0) {
+                        return MyButton(
+                          buttontapped: () {
+                            setState(() {
+                              userInput.text = '';
+                              answer.text = '0';
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: switchColor,
+                          textColor: numTxtClr,
+                        );
+                      }
+                      // +/-
+                      else if (index == 1) {
+                        return MyButton(
+                          buttonText: buttons[index],
+                          color: switchColor,
+                          textColor: numTxtClr,
+                          buttontapped: () {
+                            setState(() {
+                              userInput.text = buttons[index].substring(0, 1) +
+                                  userInput.text;
+                            });
+                          },
+                        );
+                      }
+                      // %
+                      else if (index == 2) {
+                        return MyButton(
+                          buttontapped: () {
+                            setState(() {
+                              var a = int.parse(userInput.text) * 0.01;
+                              userInput.text = a.toString();
+                              equalPressed();
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: switchColor,
+                          textColor: numTxtClr,
+                        );
+                      }
+                      // Удалить
+                      else if (index == 18) {
+                        return MyButton(
+                          buttontapped: () {
+                            setState(() {
+                              userInput.text = userInput.text
+                                  .substring(0, userInput.text.length - 1);
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: numClr,
+                          textColor: numTxtClr,
+                        );
+                      }
+                      // равно
+                      else if (index == 19) {
+                        return MyButton(
+                          buttontapped: () {
+                            setState(() {
+                              equalPressed();
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: actionsClmnnClr,
+                          textColor: numTxtClr,
+                        );
+                      }
+                      //  другие кнопки
+                      else {
+                        return MyButton(
+                          buttontapped: () {
+                            setState(() {
+                              if (isOperator(buttons[index]) &&
+                                  isOperator(userInput
+                                      .text[userInput.text.length - 1])) {
+                                userInput.text = userInput.text.substring(
+                                        0, userInput.text.length - 1) +
+                                    buttons[index];
+                              } else {
+                                userInput.text += buttons[index];
+                              }
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: isOperator(buttons[index])
+                              ? actionsClmnnClr
+                              : numClr,
+                          textColor: numTxtClr,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
             ],
@@ -249,7 +259,7 @@ class _CalculateState extends State<Calculate> {
 
 //проверка на оператор
   bool isOperator(String x) {
-    if (x == '/' || x == 'x' || x == '-' || x == '+' || x == '=') {
+    if (x == '÷' || x == 'x' || x == '-' || x == '+' || x == '=') {
       return true;
     }
     return false;
@@ -257,20 +267,18 @@ class _CalculateState extends State<Calculate> {
 
 // функция для вычисление
   void equalPressed() {
-    String finaluserinput = userInput;
-    String finaluserinput2 = userInput;
-    finaluserinput = userInput.replaceAll(
+    String finaluserinput = userInput.text;
+    finaluserinput = finaluserinput.replaceAll('÷', '/');
+    finaluserinput = finaluserinput.replaceAll(
       'x',
       '*',
     );
 
     Parser p = Parser();
-
     Expression exp = p.parse(finaluserinput);
-
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
-
-    answer = eval.toString();
+    answer.text = double.parse('${exp.evaluate(EvaluationType.REAL, cm)}')
+        .toStringAsFixed(2);
   }
 }
