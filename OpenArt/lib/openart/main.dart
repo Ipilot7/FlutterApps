@@ -4,8 +4,8 @@ import 'page1.dart';
 import 'page2.dart';
 
 void main() {
-  // runApp(const Page1());
-  runApp(const LessonApp());
+  runApp(const Page1());
+  // runApp(const LessonApp());
 }
 
 class LessonApp extends StatelessWidget {
