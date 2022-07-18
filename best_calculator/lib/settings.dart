@@ -1,10 +1,10 @@
 import 'package:best_calculator/utils/constants.dart';
-import 'package:best_calculator/utils/utils.dart';
+
 
 import 'package:flutter/material.dart';
 
 void main(List<String> args) {
-  runApp(Settings());
+  runApp(const Settings());
 }
 
 class Settings extends StatefulWidget {
@@ -54,22 +54,22 @@ class _SettingsState extends State<Settings> {
                           Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 4),
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(5),
-                                  boxShadow: [
+                                  boxShadow: const[
                                     BoxShadow(
                                         blurRadius: 5,
                                         color: Colors.black,
                                         offset: Offset(1, 2))
                                   ]),
-                              child: Text('OK'),
+                              child: const Text('OK'),
                             ),
                           )
                         ]),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _settingsListTile('Минимальная точность',
                         'Ограничить минимальную точность до 2 цыфр', true),
                     _settingsListTile(

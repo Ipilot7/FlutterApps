@@ -1,6 +1,7 @@
+
 import 'package:flutter/material.dart';
 
-//1 theme//
+//Base theme
 Color appBarBgColor = const Color(0xff1F2229);
 Color drawerBGColor = const Color(0xff263558);
 Color iconActiveColor = const Color(0xffFCA300);
@@ -15,14 +16,32 @@ Color fromCurrencyColor = const Color(0xff00E0FF);
 Color inCurrencyColor = const Color(0xffFF4D00);
 Color white = Colors.white;
 Color listViewColor = const Color(0xff494F5C);
+Color listViewTextColor = const Color(0xffFCA300);
+
+//theme two//
+Color appBarBgColor2 = const Color(0xff1F2229);
+Color drawerBGColor2 = const Color(0xff263558);
+Color iconActiveColor2 = const Color(0xffFCA300);
+Color iconColor2 = const Color(0xff9D6600);
+Color bodyBgColor2 = const Color(0xff22262F);
+Color numbersBgColor2 = const Color(0xff32363F);
+Color numbersColor2 = const Color(0xffBBBBBB);
+Color resulColor2 = const Color(0xffABABAB);
+Color operationsBgColor2 = const Color(0xff1F2229);
+Color black2 = Colors.black;
+Color fromCurrencyColor2 = const Color(0xff00E0FF);
+Color inCurrencyColor2 = const Color(0xffFF4D00);
+Color white2 = Colors.white;
+Color listViewColor2 = const Color(0xff494F5C);
+Color listViewTextColor2 = const Color(0xffFCA300);
 
 //theme one//
 Color appBarBgColor1 = const Color(0xff262626);
 Color drawerBGColor1 = const Color(0xff454545);
 Color iconActiveColor1 = const Color(0xff00E0FF);
 Color iconColor1 = const Color(0xff2B99A8);
-Color bodyBgColor1 = const Color(0xff000000);
-Color numberColor1 = const Color(0xff262626);
+Color bodyBgColor1 = const Color(0xff454545);
+Color numberColor1 = const Color(0xffffffff);
 Color numbersBgColor1 = const Color(0xff454545);
 Color resulColor1 = const Color(0xffBDBDBD);
 Color operationsBgColor1 = const Color(0xff262626);
@@ -31,7 +50,7 @@ Color fromCurrencyColor1 = const Color(0xff00E0FF);
 Color inCurrencyColor1 = const Color(0xffFF4D00);
 Color white1 = Colors.white;
 Color listViewColor1 = const Color(0xff555454);
-
+Color listViewTextColor1 = const Color(0xffFfffff);
 //theme four//
 Color appBarBgColor4 = const Color(0xffAAAAAA);
 Color drawerBGColor4 = const Color(0xff8F8F8F);
@@ -89,8 +108,8 @@ Color bodyBgColor3 = const Color(0xffd5d5d5);
 Color numberColor3 = const Color(0xff656565);
 Color numbersBgColor3 = const Color(0xfff1efed);
 Color resulColor3 = const Color(0xff777777);
-Color operationsBgColor3 = const Color(0xffdcdcdc);
-Color black13 = Colors.black;
+Color operationsBgColor3 = const Color(0xff333333);
+Color black31 = Colors.black;
 Color fromCurrencyColor3 = const Color(0xff00E0FF);
 Color inCurrencyColor3 = const Color(0xffFF4D00);
 Color white3 = Colors.white;
@@ -100,5 +119,23 @@ Color listViewColor32 = const Color(0xffc7c7c7);
 // theme 9
 Color maincolor9 = Colors.black;
 Color iconActiveColor9 = Colors.white;
-Color iconColor9 = Color(0xffe5e5e5);
+Color iconColor9 = const Color(0xffe5e5e5);
 // blur9 = 10,
+
+//theme five
+Color appBarBgColor5 = const Color(0xff161616);
+Color drawerBGColor5 = const Color(0xff474747);
+Color iconActiveColor5 = const Color(0xffFF0000);
+Color iconColor5 = const Color(0xffAD0505);
+Color bodyBgColor5 = const Color(0xff262626);
+Color numbersBgColor5 = const Color(0xff262626);
+Color numbersColor5 = const Color(0xffDADADA);
+Color resulColor5 = const Color(0xffABABAB);
+Color operationsBgColor5 = const Color(0xff161616);
+Color black5 = Colors.black;
+Color fromCurrencyColor5 = const Color(0xff00E0FF);
+Color inCurrencyColor5 = const Color(0xffFF4D00);
+Color white5 = Colors.white;
+Color listViewColor52 = const Color(0xff161616);
+Color listViewColor51 = const Color(0xff262626);
+Color listViewTextcolor = const Color(0xffDADADA);

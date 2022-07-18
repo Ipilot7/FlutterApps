@@ -1,10 +1,3 @@
-import 'package:flutter/material.dart';
-
-
-
-String userInput = '';
-String answer = '';
-
 final List<String> buttons = [
   'xⁿ', //c is delete
   '%',
@@ -22,9 +15,9 @@ final List<String> buttons = [
   '2',
   '3',
   '+',
-  ',',
+  '.',
   '0',
-  '()',
+  '( )',
   '=',
 ];
 final List<String> numbers = [
@@ -62,4 +55,31 @@ final List<String> shModButtons = [
   'ln',
   'e',
   'eⁿ'
+];
+final List<String> numbersOfRules = [
+  '7',
+  '8',
+  '9',
+  '⌫',
+  '4',
+  '5',
+  '6',
+  'C',
+  '1',
+  '2',
+  '3',
+  'OK',
+  ',',
+  '0',
+  '00',
+  'V'
+];
+final List<String> ruleMenu = [
+  'DISTANCE',
+  'AREA',
+  'MASS',
+  'VOLUME',
+  'TEMPERATURE',
+  'FUEL',
+  'COOCKING',
 ];
