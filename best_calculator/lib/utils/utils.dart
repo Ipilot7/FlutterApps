@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 final List<String> buttons = [
   'xⁿ', //c is delete
   '%',
   '/',
-  'DEL',
+  '⌫',
   '7',
   '8',
   '9',
@@ -72,14 +74,26 @@ final List<String> numbersOfRules = [
   ',',
   '0',
   '00',
-  'V'
+  '⩢'
 ];
 final List<String> ruleMenu = [
-  'DISTANCE',
-  'AREA',
-  'MASS',
-  'VOLUME',
-  'TEMPERATURE',
-  'FUEL',
-  'COOCKING',
+  'РАССТОЯНИЕ',
+  'ПЛОШАДЬ',
+  'МАССА',
+  'ОБЪЁМ',
+  'ТЕМПЕРАТУРА',
+  'ТОПЛИВО',
+  'КУЛИНАРИЯ',
 ];
+
+const colorizeColors = [
+  Colors.purple,
+  Colors.blue,
+  Colors.yellow,
+  Colors.red,
+];
+
+const colorizeTextStyle = TextStyle(
+  fontSize: 50.0,
+  fontFamily: 'Horizon',
+);

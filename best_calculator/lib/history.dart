@@ -1,12 +1,27 @@
+import 'dart:convert';
+// import 'dart:developer';
+
+import 'dart:io';
+import 'dart:math';
+
+import 'package:best_calculator/currency/currency_model.dart';
+import 'package:best_calculator/currency/hive_util.dart';
 import 'package:best_calculator/settings.dart';
 import 'package:best_calculator/utils/list_view_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 import 'package:math_expressions/math_expressions.dart';
+import 'package:shimmer/shimmer.dart';
+import 'currency/constants.dart';
+import 'currency/routes.dart';
 import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'utils/button.dart';
 import 'utils/theme_colors.dart';
+
 
 class History extends StatefulWidget {
   const History({Key? key}) : super(key: key);
@@ -15,32 +30,165 @@ class History extends StatefulWidget {
   State<History> createState() => _HistoryState();
 }
 
-class _HistoryState extends State<History> {
+class _HistoryState extends State<History> with HiveUtil {
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
   final currencyBottom = TextEditingController();
   final rulesController = TextEditingController();
+  // var isActiveIndex;
+  final topText = TextEditingController();
+  final bottomText = TextEditingController();
+  
 
-  bool isChecked = false;
+  //---
+  final TextEditingController _editingControllerTop = TextEditingController();
+  final TextEditingController _editingControllerBottom =
+      TextEditingController();
+  final FocusNode _topFocus = FocusNode();
+  final FocusNode _bottomFocus = FocusNode();
+  List<CurrencyModel> _listCurrency = [];
+  CurrencyModel? topCur;
+  CurrencyModel? bottomCur;
+  //---
+
+  
+
+  int activeIndex = 0;
+  late Animation animation;
 
   String name = '1';
+
   @override
   void initState() {
     super.initState();
-    rulesController.text = name;
+
+    //--
+    rulesController.text = '1';
+    _editingControllerTop.addListener(() {
+      if (_topFocus.hasFocus) {
+        setState(() {
+          if (_editingControllerTop.text.isNotEmpty) {
+            double sum = double.parse(topCur?.rate ?? '0') /
+                double.parse(bottomCur?.rate ?? '0') *
+                double.parse(_editingControllerTop.text);
+            _editingControllerBottom.text = sum.toStringAsFixed(2);
+          } else {
+            _editingControllerBottom.clear();
+          }
+        });
+      }
+    });
+    _editingControllerBottom.addListener(() {
+      if (_bottomFocus.hasFocus) {
+        setState(() {
+          if (_editingControllerBottom.text.isNotEmpty) {
+            double sum = double.parse(bottomCur?.rate ?? '0') /
+                double.parse(topCur?.rate ?? '0') *
+                double.parse(_editingControllerBottom.text);
+            _editingControllerTop.text = sum.toStringAsFixed(2);
+          } else {
+            _editingControllerTop.clear();
+          }
+        });
+      }
+    });
+    //---
   }
+  
 
   @override
   void dispose() {
     rulesController.dispose();
+    //---
+    _editingControllerTop.dispose();
+    _editingControllerBottom.dispose();
+    _topFocus.dispose();
+    _bottomFocus.dispose();
+    //---
     super.dispose();
   }
+
+  //-----
+  Future<bool?> _loadData() async {
+    var isLoad = await loadLocalData();
+    if (isLoad) {
+      try {
+        var response = await get(
+            Uri.parse('https://cbu.uz/uz/arkhiv-kursov-valyut/json/'));
+        if (response.statusCode == 200) {
+          for (final item in jsonDecode(response.body)) {
+            var model = CurrencyModel.fromJson(item);
+            if (model.ccy == 'USD') {
+              topCur = model;
+            } else if (model.ccy == 'RUB') {
+              bottomCur = model;
+            }
+            _listCurrency.add(model);
+            await saveBox<String>(dateBox, topCur?.date ?? '', key: dateKey);
+            await saveBox<List<dynamic>>(currencyBox, _listCurrency,
+                key: currencyListKey);
+          }
+          return true;
+        } else {
+          _showMessage('Unknown error');
+        }
+      } on SocketException {
+        _showMessage('Connection error');
+      } catch (e) {
+        _showMessage(e.toString());
+      }
+    } else {
+      return true;
+    }
+    return null;
+  }
+
+  Future<bool> loadLocalData() async {
+    try {
+      var date = await getBox<String>(dateBox, key: dateKey);
+      if (date ==
+          DateFormat('dd.MM.yyyy')
+              .format(DateTime.now().add(const Duration(days: -1)))) {
+        var list =
+            await getBox<List<dynamic>>(currencyBox, key: currencyListKey) ??
+                [];
+        _listCurrency = List.castFrom<dynamic, CurrencyModel>(list);
+        for (var model in _listCurrency) {
+          if (model.ccy == 'USD') {
+            topCur = model;
+          } else if (model.ccy == 'RUB') {
+            bottomCur = model;
+          }
+        }
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      _showMessage(e.toString());
+    }
+    return true;
+  }
+
+  _showMessage(String text, {bool isError = true}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: isError ? Colors.red : Colors.green[400],
+        content: Text(
+          text,
+          style: kTextStyle(size: 15, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+  //-----
 
   bool isActive = true;
 
   @override
   Widget build(BuildContext context) {
+    // final String s = ModalRoute.of(context).settings.arguments;
     Size size = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -82,10 +230,8 @@ class _HistoryState extends State<History> {
                       size: 28,
                     ),
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Settings()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Settings()));
                     }),
                 const SizedBox(
                   width: 10,
@@ -113,27 +259,66 @@ class _HistoryState extends State<History> {
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 13),
-                              child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Image.asset('assets/history.png')),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 20, left: 110, right: 90),
+                                  child: SizedBox(
+                                    height: 30.0,
+                                    child: Shimmer.fromColors(
+                                      baseColor: bodyBgColor,
+                                      highlightColor: white,
+                                      child: const Text(
+                                        'Hello World',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      children: [
+                                        Image.asset(
+                                          'assets/history.png',
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ],
+                                    )),
+                              ],
                             ),
-                            TextField(
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.end,
-                              controller: userInput,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.white),
+                            Expanded(
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.end,
+                                controller: userInput,
+                                decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.zero,
+                                    border: InputBorder.none),
+                                style: const TextStyle(
+                                    fontSize: 50, color: Colors.white),
+                              ),
                             ),
-                            TextField(
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.end,
-                              controller: answer,
-                              style: const TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.end,
+                                decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.zero,
+                                    border: InputBorder.none),
+                                controller: answer,
+                                style: const TextStyle(
+                                    fontSize: 30,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             )
                           ]),
                     ),
@@ -150,7 +335,12 @@ class _HistoryState extends State<History> {
                             return MyButton(
                               buttontapped: () {
                                 setState(() {
-                                  userInput.text = '';
+                                  if (userInput.text.isEmpty) {
+                                    userInput.text = userInput.text.substring(
+                                        0, userInput.text.length - 1);
+                                  } else {
+                                    userInput.text = '';
+                                  }
                                   answer.text = '0';
                                 });
                               },
@@ -203,7 +393,7 @@ class _HistoryState extends State<History> {
                             );
                           }
 
-                          // Equal_to Button
+                          // = Button
                           else if (index == 19) {
                             return MyButton(
                               buttontapped: () {
@@ -214,6 +404,31 @@ class _HistoryState extends State<History> {
                               buttonText: buttons[index],
                               color: operationsBgColor,
                               textColor: iconActiveColor,
+                            );
+                          } else if (index == 18) {
+                            return MyButton(
+                              buttontapped: () {
+                                setState(() {
+                                  if (userInput.text.isNotEmpty) {
+                                    if (!userInput.text.contains('(') &&
+                                        !userInput.text.contains(')')) {
+                                      userInput.text = '(${userInput.text})';
+                                    } else {
+                                      if (userInput.text.contains('(')) {
+                                        userInput.text += ')';
+                                      } else {
+                                        userInput.text += '(';
+                                      }
+                                    }
+                                  } else {
+                                    userInput.text = '(';
+                                  }
+                                  ;
+                                });
+                              },
+                              buttonText: buttons[index],
+                              color: numbersBgColor,
+                              textColor: numbersColor,
                             );
                           }
 
@@ -238,6 +453,7 @@ class _HistoryState extends State<History> {
                     InkWell(
                         onTap: () {
                           showModalBottomSheet<void>(
+                              backgroundColor: bodyBgColor,
                               context: context,
                               builder: (BuildContext context) {
                                 return Column(
@@ -253,7 +469,155 @@ class _HistoryState extends State<History> {
                                                   crossAxisCount: 4),
                                           itemBuilder: (BuildContext context,
                                               int index) {
-                                            //  other buttons
+                                            if (index == 9) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = pow(
+                                                          int.parse(
+                                                              userInput.text),
+                                                          2)
+                                                      .toString();
+                                                  equalPressed();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 10) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = pow(
+                                                          int.parse(
+                                                              userInput.text),
+                                                          3)
+                                                      .toString();
+                                                  equalPressed();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 0) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = (int.parse(
+                                                              userInput.text) *
+                                                          180 /
+                                                          3.14)
+                                                      .toStringAsFixed(5);
+
+                                                  equalPressed();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 1) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text =
+                                                      '${shModButtons[index]}(${userInput.text})';
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 2) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text =
+                                                      '${shModButtons[index]}(${userInput.text})';
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 3) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text =
+                                                      '${shModButtons[index]}(${userInput.text})';
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 4) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text += '3.14';
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 8) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = (1 /
+                                                          (int.parse(
+                                                              userInput.text)))
+                                                      .toString();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            }
+                                            // else if (index == 5) {
+                                            //   return MyButton(
+                                            //     buttontapped: () {
+                                            //       userInput.text =
+                                            //           '${shModButtons[index]}(';
+                                            //     },
+                                            //     buttonText: shModButtons[index],
+                                            //   );
+                                            // }
+                                            // else if (index == 5) {
+                                            //   return MyButton(
+                                            //       buttonText:
+                                            //           shModButtons[index],
+                                            //       buttontapped: () {
+                                            //         var numbers = int.parse(
+                                            //             userInput.text);
+
+                                            //         userInput.text =
+                                            //             sinh(numbers)
+                                            //                 .toString();
+                                            //         equalPressed();
+                                            //       });
+                                            // }
+                                            else if (index == 11) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = (exp(
+                                                          int.parse(
+                                                              userInput.text)))
+                                                      .toString();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 12) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text = (log(
+                                                          double.parse(
+                                                              userInput.text)))
+                                                      .toString();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 13) {
+                                              //не закончен
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text +=
+                                                      shModButtons[index];
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 14) {
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text +=
+                                                      e.toString();
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            } else if (index == 15) {
+                                              //не закончен
+                                              return MyButton(
+                                                buttontapped: () {
+                                                  userInput.text +=
+                                                      '${shModButtons[index].replaceAll('eⁿ', 'e^')}(';
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            }
 
                                             return MyButton(
                                               buttontapped: () {
@@ -263,11 +627,11 @@ class _HistoryState extends State<History> {
                                                 });
                                               },
                                               buttonText: shModButtons[index],
-                                              color: isOperator(
+                                              color: isMathOperations(
                                                       shModButtons[index])
                                                   ? operationsBgColor
                                                   : numbersBgColor,
-                                              textColor: isOperator(
+                                              textColor: isMathOperations(
                                                       shModButtons[index])
                                                   ? iconActiveColor
                                                   : numbersColor,
@@ -286,89 +650,139 @@ class _HistoryState extends State<History> {
                   ],
                 ),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 25),
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 29),
-                      decoration: BoxDecoration(
-                          color: operationsBgColor,
-                          boxShadow: const [
-                            BoxShadow(
-                              blurRadius: 10.0,
-                              offset: Offset(0.0, 0.75),
-                            )
-                          ]),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Text('From currency',
-                                    style: kTextstyle(
-                                        size: 16, color: fromCurrencyColor)),
+                    FutureBuilder(
+                        future: _listCurrency.isEmpty ? _loadData() : null,
+                        builder: ((context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(14),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 25, horizontal: 12),
+                              decoration: BoxDecoration(
+                                boxShadow: const [
+                                  BoxShadow(
+                                    blurRadius: 10.0,
+                                    offset: Offset(0.0, 0.75),
+                                  )
+                                ],
+                                color: numbersBgColor,
                               ),
-                              Icon(
-                                Icons.refresh,
-                                size: 40,
-                                color: numbersColor,
-                              )
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _listTile('usd', 'USD', 'American dollar'),
-                              SizedBox(
-                                  height: 34,
-                                  width: 172,
-                                  child: TextField(
-                                    style: TextStyle(color: fromCurrencyColor),
-                                    textAlign: TextAlign.end,
-                                    keyboardType: TextInputType.number,
-                                    controller: currencyTop,
-                                    decoration: InputDecoration(
-                                        enabledBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                width: 3,
-                                                color: fromCurrencyColor))),
-                                  )),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text('In currency',
-                                style: kTextstyle(
-                                    size: 16, color: inCurrencyColor)),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _listTile('uzs', 'UZS', 'Uzsbekistan sum'),
-                              SizedBox(
-                                  height: 34,
-                                  width: 172,
-                                  child: TextField(
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(color: inCurrencyColor),
-                                    controller: currencyBottom,
-                                    decoration: InputDecoration(
-                                        enabledBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                width: 3,
-                                                color: inCurrencyColor))),
-                                  )),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    _currencyButtons(),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Exchange',
+                                        style: kTextStyle(
+                                            size: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {},
+                                        iconSize: 20,
+                                        icon: const Icon(
+                                          Icons.settings,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          _itemExch(_editingControllerTop,
+                                              topCur, _topFocus, ((value) {
+                                            if (value is CurrencyModel) {
+                                              setState(() => topCur = value);
+                                            }
+                                          })),
+                                          const SizedBox(
+                                            height: 15,
+                                          ),
+                                          _itemExch(
+                                              _editingControllerBottom,
+                                              bottomCur,
+                                              _bottomFocus, ((value) {
+                                            if (value is CurrencyModel) {
+                                              setState(() => bottomCur = value);
+                                            }
+                                          })),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            var model = topCur?.copyWith();
+                                            topCur = bottomCur?.copyWith();
+                                            bottomCur = model;
+                                            _editingControllerTop.clear();
+                                            _editingControllerBottom.clear();
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 35,
+                                          width: 35,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff2d334d),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white12),
+                                          ),
+                                          child: const Icon(
+                                            Icons.currency_exchange,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Expanded(
+                              child: Center(
+                                child: Text(
+                                  'Error',
+                                  style: kTextStyle(size: 18),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return const Expanded(
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }
+                        })),
+                    // InkWell(
+                    //     onTap: () {
+                    //       showModalBottomSheet<void>(
+                    //           backgroundColor: bodyBgColor,
+                    //           context: context,
+                    //           builder: (BuildContext context) {
+                    //             return _currencyButtons();
+                    //           });
+                    //     },
+                    //     child: Container(
+                    //       color: iconActiveColor,
+                    //       width: size.width,
+                    //       height: 30,
+                    //     ))
+                    // _currencyButtons(),
                   ],
                 ),
                 MaterialApp(
@@ -409,77 +823,77 @@ class _HistoryState extends State<History> {
     );
   }
 
-  Padding _currencyButtons() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Container(
-        decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
-          BoxShadow(
-            blurRadius: 10.0,
-            offset: Offset(0.0, 0.75),
-          )
-        ]),
-        child: Container(
-          color: black,
-          child: GridView.builder(
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: numbers.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-              ),
-              itemBuilder: (BuildContext context, int index) {
-                // Clear Button
-                if (index == 11) {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        currencyTop.text = '';
-                        currencyBottom.text = '';
-                      });
-                    },
-                    buttonText: numbers[index],
-                    color: operationsBgColor,
-                    textColor: iconActiveColor,
-                  );
-                }
+  // _currencyButtons() {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(15),
+  //     child: Container(
+  //       decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
+  //         BoxShadow(
+  //           blurRadius: 10.0,
+  //           offset: Offset(0.0, 0.75),
+  //         )
+  //       ]),
+  //       child: Container(
+  //         color: black,
+  //         child: GridView.builder(
+  //             physics: const BouncingScrollPhysics(),
+  //             shrinkWrap: true,
+  //             itemCount: numbers.length,
+  //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //               crossAxisCount: 4,
+  //             ),
+  //             itemBuilder: (BuildContext context, int index) {
+  //               // Clear Button
+  //               if (index == 11) {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyTop.text = '';
+  //                       currencyBottom.text = '';
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: iconActiveColor,
+  //                 );
+  //               }
 
-                // Delete Button
-                else if (index == 3) {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        currencyBottom.text = currencyBottom.text
-                            .substring(0, currencyBottom.text.length - 1);
-                      });
-                    },
-                    buttonText: numbers[index],
-                    color: operationsBgColor,
-                    textColor: iconActiveColor,
-                  );
-                }
+  //               // Delete Button
+  //               else if (index == 3) {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyBottom.text = currencyBottom.text
+  //                           .substring(0, currencyBottom.text.length - 1);
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: iconActiveColor,
+  //                 );
+  //               }
 
-                //  other buttons
-                else {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        currencyBottom.text += numbers[index];
-                        currencyTop.text += numbers[index];
-                      });
-                    },
-                    buttonText: numbers[index],
-                    color: operationsBgColor,
-                    textColor: isCurrencyOperator(numbers[index])
-                        ? iconActiveColor
-                        : numbersColor,
-                  );
-                }
-              }),
-        ),
-      ),
-    );
-  }
+  //               //  other buttons
+  //               else {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyBottom.text += numbers[index];
+  //                       currencyTop.text += numbers[index];
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: isCurrencyOperator(numbers[index])
+  //                       ? iconActiveColor
+  //                       : numbersColor,
+  //                 );
+  //               }
+  //             }),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Padding _currencyButtonsRules() {
     return Padding(
@@ -562,54 +976,82 @@ class _HistoryState extends State<History> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                      onTap: () {
-                        showModalBottomSheet(
-                            backgroundColor: bodyBgColor,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return ListView.builder(
-                                itemCount: mapName.length,
-                                itemBuilder: (BuildContext context,
-                                        int index) =>
-                                    listile3pageInShModButSheet(
-                                        mapName.keys.elementAt(index),
-                                        "${mapName.values.elementAt(index)[0]}",
-                                        index),
-                              );
-                            });
-                      },
-                      child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(mapName.keys.last.toString(),
-                                    style: kTextstyle(
-                                        size: 16, color: iconActiveColor)),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    mapName.values.first[0].toString(),
-                                    style: kTextstyle(
-                                        size: 38, color: iconActiveColor),
-                                  ),
-                                  Icon(
-                                    Icons.expand_more,
-                                    color: numbersColor,
-                                  ),
-                                ],
+                    child: Container(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(topText.text,
+                                  style: kTextstyle(
+                                      size: 16, color: iconActiveColor)),
+                              Text(
+                                bottomText.text,
+                                style: kTextstyle(
+                                    size: 38, color: iconActiveColor),
                               ),
-                            )
-                          ],
-                        ),
-                      )),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Icon(
+                              Icons.expand_more,
+                              color: numbersColor,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      showModalBottomSheet(
+                          backgroundColor: bodyBgColor,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ListView.builder(
+                                itemCount: mapName.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      activeIndex = index;
+                                      topText.text =
+                                          mapName.keys.elementAt(activeIndex);
+                                      bottomText.text = mapName.values
+                                          .elementAt(activeIndex)[0];
+
+                                      Navigator.pop(context);
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      color: index.isOdd
+                                          ? numbersBgColor
+                                          : listViewColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 13, vertical: 12),
+                                      child: ListTile(
+                                        title: Text(
+                                          mapName.keys.elementAt(index),
+                                          style: kTextstyle(
+                                              size: 12,
+                                              color: listViewTextColor),
+                                        ),
+                                        subtitle: Text(
+                                            "${mapName.values.elementAt(index)[0]}",
+                                            style: kTextstyle(
+                                                size: 24,
+                                                color: listViewTextColor)),
+                                        trailing: activeIndex == index
+                                            ? Icon(Icons.done,
+                                                color: Colors.green)
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                });
+                          });
+                    },
+                  ),
                   Expanded(
                       child: TextField(
                     readOnly: true,
@@ -629,13 +1071,18 @@ class _HistoryState extends State<History> {
                 ])),
         Expanded(
           child: ListView.builder(
-            itemCount: mapName.length,
-            itemBuilder: (BuildContext context, int index) => listTile3page(
-                mapName.keys.elementAt(index),
-                "${mapName.values.elementAt(index)[0]}",
-                '${mapName.values.elementAt(index)[1] * num.parse(rulesController.text == "" ? "1" : rulesController.text)}',
-                index),
-          ),
+              itemCount: mapName.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (bottomText.text == mapName.values.elementAt(index)[0]) {
+                  return Container();
+                } else {
+                  return listTile3page(
+                      mapName.keys.elementAt(index),
+                      "${mapName.values.elementAt(index)[0]}",
+                      '${mapName.values.elementAt(index)[1] * num.parse(rulesController.text == "" ? "1" : rulesController.text)}',
+                      index);
+                }
+              }),
         ),
       ],
     );
@@ -774,53 +1221,6 @@ class _HistoryState extends State<History> {
     );
   }
 
-  listile3pageInShModButSheet(String title, String subtitle, int index) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isChecked = true;
-        });
-      },
-      child: Container(
-        color: index.isOdd ? numbersBgColor : listViewColor,
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
-        child: ListTile(
-          title: Text(
-            title,
-            style: kTextstyle(size: 12, color: listViewTextColor),
-          ),
-          subtitle: Text(subtitle,
-              style: kTextstyle(size: 24, color: listViewTextColor)),
-          trailing: title == mapNames.last[0]
-              ? Icon(Icons.done, color: Colors.green)
-              : null,
-        ),
-      ),
-    );
-    // InkWell(
-    //   onTap: () {},
-    //   child: Container(
-    //     color: index.isOdd ? numbersBgColor : listViewColor,
-    //     padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
-    //     child:
-    //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-    //       Column(
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: [
-    //           Text(
-    //             title,
-    //             style: kTextstyle(size: 12, color: listViewTextColor),
-    //           ),
-    //           Text(subtitle,
-    //               style: kTextstyle(size: 24, color: listViewTextColor)),
-    //         ],
-    //       ),
-    //       Icon(Icons.done, color: Colors.green),
-    //     ]),
-    //   ),
-    // );
-  }
-
   Row _listTile(String imageName, String title, String subtitle) {
     return Row(
       children: [
@@ -864,9 +1264,128 @@ class _HistoryState extends State<History> {
     Expression exp = p.parse(finaluserinput);
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
-    if (answer.text is double) {
+    if (answer.text is int) {
       answer.text = eval.toInt().toString();
     }
     answer.text = eval.toString();
+  }
+
+  Widget _itemExch(TextEditingController controller, CurrencyModel? model,
+      FocusNode focusNode, Function callback) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  style: kTextStyle(size: 24, fontWeight: FontWeight.bold),
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    hintText: '0.00',
+                    hintStyle:
+                        kTextStyle(size: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, Routes.currencyPage,
+                    arguments: {
+                      'list_curreny': _listCurrency,
+                      'top_cur': topCur?.ccy,
+                      'bottom_cur': bottomCur?.ccy
+                    }).then(((value) => callback(value))),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.blueGrey),
+                  child: Row(children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SvgPicture.asset(
+                        'assets/flags/${model?.ccy?.substring(0, 2).toLowerCase()}.svg',
+                        height: 20,
+                        width: 20,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5, right: 10),
+                      child: Text(
+                        model?.ccy ?? 'UNK',
+                        style:
+                            kTextStyle(size: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white54,
+                      size: 15,
+                    )
+                  ]),
+                ),
+              )
+            ],
+          ),
+          Text(
+            controller.text.isNotEmpty
+                ? (double.parse(controller.text) * 0.05).toStringAsFixed(2)
+                : '0.00',
+            style:
+                kTextStyle(fontWeight: FontWeight.w600, color: Colors.white54),
+          )
+        ],
+      ),
+    );
+  }
+
+  bool isMathOperations(String x) {
+    if (x == 'RAD' ||
+        x == 'sin' ||
+        x == 'cos' ||
+        x == 'tan' ||
+        x == 'π' ||
+        x == 'sinh' ||
+        x == 'cosh' ||
+        x == 'tanh' ||
+        x == 'x¯¹' ||
+        x == 'x²' ||
+        x == 'x³' ||
+        x == 'exp' ||
+        x == 'log' ||
+        x == 'ln' ||
+        x == 'e' ||
+        x == 'eⁿ') {
+      return true;
+    }
+    return false;
+  }
+
+  pow(int x, int y) {
+    var a = 1;
+    for (int i = 0; i < y; i++) {
+      a *= x;
+    }
+    return a;
+  }
+
+  sinh(num x) {
+    return x = (exp(x) - exp(x)) / 2;
+  }
+
+  cosh(num x) {
+    return x = (exp(x) + exp(x)) / 2;
+  }
+
+  tanh(num x) {
+    return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
 }
