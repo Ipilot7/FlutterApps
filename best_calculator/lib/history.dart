@@ -8,6 +8,7 @@ import 'package:best_calculator/currency/currency_model.dart';
 import 'package:best_calculator/currency/hive_util.dart';
 import 'package:best_calculator/settings.dart';
 import 'package:best_calculator/utils/list_view_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
@@ -21,7 +22,6 @@ import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'utils/button.dart';
 import 'utils/theme_colors.dart';
-
 
 class History extends StatefulWidget {
   const History({Key? key}) : super(key: key);
@@ -39,7 +39,6 @@ class _HistoryState extends State<History> with HiveUtil {
   // var isActiveIndex;
   final topText = TextEditingController();
   final bottomText = TextEditingController();
-  
 
   //---
   final TextEditingController _editingControllerTop = TextEditingController();
@@ -51,9 +50,7 @@ class _HistoryState extends State<History> with HiveUtil {
   CurrencyModel? topCur;
   CurrencyModel? bottomCur;
   //---
-
-  
-
+  List myList = [1, 2, 3, 4, 3];
   int activeIndex = 0;
   late Animation animation;
 
@@ -95,7 +92,6 @@ class _HistoryState extends State<History> with HiveUtil {
     });
     //---
   }
-  
 
   @override
   void dispose() {
@@ -263,6 +259,121 @@ class _HistoryState extends State<History> with HiveUtil {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                // showModalBottomSheet<
+                                //                                     void>(
+                                //                                   isScrollControlled:
+                                //                                       true,
+                                //                                   context:
+                                //                                       context,
+                                //                                   builder:
+                                //                                       (BuildContext
+                                //                                           context) {
+                                //                                     return Container(
+                                //                                       height: size
+                                //                                               .height *
+                                //                                           0.89,
+                                //                                       color: const Color(
+                                //                                           0xff262626),
+                                //                                       child:
+                                //                                           Column(
+                                //                                         children: [
+                                //                                           Padding(
+                                //                                             padding:
+                                //                                                 const EdgeInsets.only(left: 17, right: 17),
+                                //                                             child:
+                                //                                                 Row(
+                                //                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //                                               children: [
+                                //                                                 TextButton(
+                                //                                                   onPressed: () {},
+                                //                                                   child: Text(
+                                //                                                     "history",
+                                //                                                     style: kTextStyle(
+                                //                                                       size: 18,
+                                //                                                       fontWeight: FontWeight.w400,
+                                //                                                       color: const Color(0xffFF0000),
+                                //                                                     ),
+                                //                                                   ),
+                                //                                                 ),
+                                //                                                 GestureDetector(
+                                //                                                   onTap: () {},
+                                //                                                   child: const Icon(
+                                //                                                     CupertinoIcons.delete_simple,
+                                //                                                     size: 35,
+                                //                                                     color: Color(0xffFF0000),
+                                //                                                   ),
+                                //                                                 ),
+                                //                                               ],
+                                //                                             ),
+                                //                                           ),
+                                //                                           Container(
+                                //                                             width:
+                                //                                                 double.infinity,
+                                //                                             height:
+                                //                                                 size.height * 0.775,
+                                //                                             decoration:
+                                //                                                 const BoxDecoration(
+                                //                                               color: Color(0xff262626),
+                                //                                               border: Border(
+                                //                                                 top: BorderSide(
+                                //                                                   width: 1,
+                                //                                                   color: Color(0xffFF0000),
+                                //                                                 ),
+                                //                                                 bottom: BorderSide(
+                                //                                                   width: 1,
+                                //                                                   color: Color(0xffFF0000),
+                                //                                                 ),
+                                //                                               ),
+                                //                                             ),
+                                //                                             child:
+                                //                                                 ListView.builder(
+                                //                                               itemCount: myList.length,
+                                //                                               itemBuilder: ((BuildContext context, int index) {
+                                //                                                 return Container(
+                                //                                                   alignment: Alignment.center,
+                                //                                                   width: double.infinity,
+                                //                                                   height: 100,
+                                //                                                   decoration: BoxDecoration(color: Colors.black, border: Border.all(width: 2, color: Colors.red)),
+                                //                                                   child: ListTile(
+                                //                                                     leading: InkWell(
+                                //                                                       onTap: () {},
+                                //                                                       child: const Icon(
+                                //                                                         CupertinoIcons.delete,
+                                //                                                         color: Colors.red,
+                                //                                                         size: 25,
+                                //                                                       ),
+                                //                                                     ),
+                                //                                                     title: Text(
+                                //                                                       "1",
+                                //                                                       style: kTextStyle(color: Colors.white, size: 20),
+                                //                                                     ),
+                                //                                                     subtitle: Text(
+                                //                                                       "2",
+                                //                                                       style: kTextStyle(color: Colors.red, size: 18),
+                                //                                                     ),
+                                //                                                   ),
+                                //                                                 );
+                                //                                               }),
+                                //                                             ),
+                                //                                           ),
+                                //                                           GestureDetector(
+                                //                                             onTap: () =>
+                                //                                                 Navigator.pop(context),
+                                //                                             child:
+                                //                                                 Container(
+                                //                                               height: 30,
+                                //                                               width: double.infinity,
+                                //                                               decoration: const BoxDecoration(
+                                //                                                 color: Color(0xffFF0000),
+                                //                                               ),
+                                //                                               child: Image.asset("assets/parenthesis.png"),
+                                //                                             ),
+                                //                                           ),
+                                //                                         ],
+                                //                                       ),
+                                //                                     );
+                                //                                   },
+                                //                                 );
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       top: 20, left: 110, right: 90),
@@ -285,11 +396,151 @@ class _HistoryState extends State<History> with HiveUtil {
                                     alignment: Alignment.center,
                                     child: Row(
                                       children: [
-                                        Image.asset(
-                                          'assets/history.png',
-                                          width: 30,
-                                          height: 30,
-                                        ),
+                                        InkWell(
+                                            child: Image.asset(
+                                              'assets/history.png',
+                                              width: 30,
+                                              height: 30,
+                                            ),
+                                            onTap: () {
+                                              showModalBottomSheet<void>(
+                                                isScrollControlled: true,
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return Container(
+                                                    height: size.height * 0.89,
+                                                    color:
+                                                        const Color(0xff262626),
+                                                    child: Column(
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 17,
+                                                                  right: 17),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () {},
+                                                                child: Text(
+                                                                  "history",
+                                                                  style:
+                                                                      kTextStyle(
+                                                                    size: 18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    color:
+                                                                        iconActiveColor,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              GestureDetector(
+                                                                onTap: () {},
+                                                                child: Icon(
+                                                                  CupertinoIcons
+                                                                      .delete_simple,
+                                                                  size: 35,
+                                                                  color:
+                                                                      iconActiveColor,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          width:
+                                                              double.infinity,
+                                                          height: size.height *
+                                                              0.775,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Color(
+                                                                0xff262626),
+                                                            border: Border(
+                                                              top: BorderSide(
+                                                                width: 1,
+                                                                color:
+                                                                    numbersColor,
+                                                              ),
+                                                              bottom:
+                                                                  BorderSide(
+                                                                width: 1,
+                                                                color:
+                                                                    numbersColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          child:
+                                                              ListView.builder(
+                                                            itemCount:
+                                                                myList.length,
+                                                            itemBuilder:
+                                                                ((BuildContext
+                                                                        context,
+                                                                    int index) {
+                                                              return Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                width: double
+                                                                    .infinity,
+                                                                height: 100,
+                                                                decoration: BoxDecoration(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    border: Border.all(
+                                                                        width:
+                                                                            2,
+                                                                        color:
+                                                                            iconActiveColor)),
+                                                                child: ListTile(
+                                                                  leading:
+                                                                      InkWell(
+                                                                    onTap:
+                                                                        () {},
+                                                                    child: Icon(
+                                                                      CupertinoIcons
+                                                                          .delete,
+                                                                      color:
+                                                                          numbersColor,
+                                                                      size: 25,
+                                                                    ),
+                                                                  ),
+                                                                  title: Text(
+                                                                    "1",
+                                                                    style: kTextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        size:
+                                                                            20),
+                                                                  ),
+                                                                  subtitle:
+                                                                      Text(
+                                                                    "2",
+                                                                    style: kTextStyle(
+                                                                        color:
+                                                                            numbersColor,
+                                                                        size:
+                                                                            18),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }),
                                       ],
                                     )),
                               ],
@@ -1221,18 +1472,18 @@ class _HistoryState extends State<History> with HiveUtil {
     );
   }
 
-  Row _listTile(String imageName, String title, String subtitle) {
-    return Row(
-      children: [
-        Image.asset('assets/${imageName}.png'),
-        const SizedBox(width: 10),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: kTextstyle(size: 16, color: Colors.white)),
-          Text(subtitle, style: kTextstyle(size: 12, color: Colors.white))
-        ])
-      ],
-    );
-  }
+  // Row _listTile(String imageName, String title, String subtitle) {
+  //   return Row(
+  //     children: [
+  //       Image.asset('assets/${imageName}.png'),
+  //       const SizedBox(width: 10),
+  //       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //         Text(title, style: kTextstyle(size: 16, color: Colors.white)),
+  //         Text(subtitle, style: kTextstyle(size: 12, color: Colors.white))
+  //       ])
+  //     ],
+  //   );
+  // }
 
   bool isCurrencyOperator(String x) {
     if (x == 'del' || x == 'up/d' || x == 'C') {
