@@ -1,14 +1,16 @@
 import 'package:best_calculator/utils/constants.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 
-void main(List<String> args) {
-  runApp(const Settings());
-}
+
+// void main(List<String> args) {
+//   runApp(const Settings());
+// }
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
-
+  Settings(this.animatedText,{Key? key}) : super(key: key);
+  String animatedText;
   @override
   State<Settings> createState() => _SettingsState();
 }
@@ -21,6 +23,9 @@ class _SettingsState extends State<Settings> {
   bool switchValue3 = false;
   bool switchValue4 = false;
   bool switchValue5 = false;
+
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -56,7 +61,8 @@ class _SettingsState extends State<Settings> {
                               width: 270,
                               child: TextField(
                                 controller: settingsController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  hintText: widget.animatedText,
                                     enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
                                             width: 1, color: Colors.black))),
@@ -65,8 +71,10 @@ class _SettingsState extends State<Settings> {
                             padding: const EdgeInsets.only(right: 10),
                             child: InkWell(
                               onTap: () {
-                                Navigator.pushNamed(context, '/historyPage',
-                                    arguments: settingsController.text);
+                                Navigator.pop(context, settingsController.text);
+                                setState(() {
+                                  settingsController.text = "";
+                                });
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -205,9 +213,8 @@ class _SettingsState extends State<Settings> {
                             child: Switch(
                                 value: switchValue3,
                                 onChanged: (value) {
-                                  setState(() {
-                                    switchValue3 = value;
-                                  });
+                                  switchValue3 = value;
+                                 
                                 }),
                           ),
                         )
@@ -237,6 +244,11 @@ class _SettingsState extends State<Settings> {
                             onChanged: (value) {
                               setState(() {
                                 switchValue5 = value;
+                                if (value){
+                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,overlays: [SystemUiOverlay.bottom]);
+                                }
+                                else{
+                                 SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);}
                               });
                             }),
                       ],

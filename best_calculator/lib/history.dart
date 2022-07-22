@@ -1,36 +1,39 @@
 import 'dart:convert';
-// import 'dart:developer';
-
 import 'dart:io';
 import 'dart:math';
-
 import 'package:best_calculator/currency/currency_model.dart';
 import 'package:best_calculator/currency/hive_util.dart';
-import 'package:best_calculator/settings.dart';
 import 'package:best_calculator/utils/list_view_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-
 import 'package:math_expressions/math_expressions.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:wakelock/wakelock.dart';
 import 'currency/constants.dart';
 import 'currency/routes.dart';
 import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'utils/button.dart';
 import 'utils/theme_colors.dart';
+import 'main.dart';
+
 
 class History extends StatefulWidget {
-  const History({Key? key}) : super(key: key);
-
+  History(/*this.,*/{Key? key}) : super(key: key);
+  // String animatedText;
   @override
   State<History> createState() => _HistoryState();
 }
 
-class _HistoryState extends State<History> with HiveUtil {
+class _HistoryState extends State<History> with HiveUtil { 
+
+  
+  late List hiveValues;
+  late List hiveKeys;
+
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
@@ -39,7 +42,7 @@ class _HistoryState extends State<History> with HiveUtil {
   // var isActiveIndex;
   final topText = TextEditingController();
   final bottomText = TextEditingController();
-
+  late String animatedText;
   //---
   final TextEditingController _editingControllerTop = TextEditingController();
   final TextEditingController _editingControllerBottom =
@@ -50,16 +53,27 @@ class _HistoryState extends State<History> with HiveUtil {
   CurrencyModel? topCur;
   CurrencyModel? bottomCur;
   //---
-  List myList = [1, 2, 3, 4, 3];
+  
   int activeIndex = 0;
   late Animation animation;
 
   String name = '1';
+  //settings
+  bool minimumTo2Cals=false; //.00;
+  bool onSwapClear=true;
+  bool isAnimated=true;
+  bool isWakeLook=false;
+  //;
+  bool isCheckStatusBar=false;
+  //---------------------
+  
 
   @override
   void initState() {
     super.initState();
-
+    animatedText = "Baxtiyor";
+    hiveKeys=[];
+    hiveValues=[];
     //--
     rulesController.text = '1';
     _editingControllerTop.addListener(() {
@@ -179,12 +193,21 @@ class _HistoryState extends State<History> with HiveUtil {
     );
   }
   //-----
-
-  bool isActive = true;
+  callback(value) {
+    setState(() {
+      if(value is String) {
+        animatedText = value;
+      }
+    });
+  }
+ 
 
   @override
   Widget build(BuildContext context) {
-    // final String s = ModalRoute.of(context).settings.arguments;
+    if (isWakeLook){
+      Wakelock.enable();
+    }else{
+    Wakelock.disable();}
     Size size = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -226,8 +249,9 @@ class _HistoryState extends State<History> with HiveUtil {
                       size: 28,
                     ),
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Settings()));
+                      Navigator.pushNamed(context, Routes.settingPage, arguments: {
+                        'animated_text': animatedText
+                      }).then((value) => callback(value));
                     }),
                 const SizedBox(
                   width: 10,
@@ -259,137 +283,29 @@ class _HistoryState extends State<History> with HiveUtil {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                // showModalBottomSheet<
-                                //                                     void>(
-                                //                                   isScrollControlled:
-                                //                                       true,
-                                //                                   context:
-                                //                                       context,
-                                //                                   builder:
-                                //                                       (BuildContext
-                                //                                           context) {
-                                //                                     return Container(
-                                //                                       height: size
-                                //                                               .height *
-                                //                                           0.89,
-                                //                                       color: const Color(
-                                //                                           0xff262626),
-                                //                                       child:
-                                //                                           Column(
-                                //                                         children: [
-                                //                                           Padding(
-                                //                                             padding:
-                                //                                                 const EdgeInsets.only(left: 17, right: 17),
-                                //                                             child:
-                                //                                                 Row(
-                                //                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                //                                               children: [
-                                //                                                 TextButton(
-                                //                                                   onPressed: () {},
-                                //                                                   child: Text(
-                                //                                                     "history",
-                                //                                                     style: kTextStyle(
-                                //                                                       size: 18,
-                                //                                                       fontWeight: FontWeight.w400,
-                                //                                                       color: const Color(0xffFF0000),
-                                //                                                     ),
-                                //                                                   ),
-                                //                                                 ),
-                                //                                                 GestureDetector(
-                                //                                                   onTap: () {},
-                                //                                                   child: const Icon(
-                                //                                                     CupertinoIcons.delete_simple,
-                                //                                                     size: 35,
-                                //                                                     color: Color(0xffFF0000),
-                                //                                                   ),
-                                //                                                 ),
-                                //                                               ],
-                                //                                             ),
-                                //                                           ),
-                                //                                           Container(
-                                //                                             width:
-                                //                                                 double.infinity,
-                                //                                             height:
-                                //                                                 size.height * 0.775,
-                                //                                             decoration:
-                                //                                                 const BoxDecoration(
-                                //                                               color: Color(0xff262626),
-                                //                                               border: Border(
-                                //                                                 top: BorderSide(
-                                //                                                   width: 1,
-                                //                                                   color: Color(0xffFF0000),
-                                //                                                 ),
-                                //                                                 bottom: BorderSide(
-                                //                                                   width: 1,
-                                //                                                   color: Color(0xffFF0000),
-                                //                                                 ),
-                                //                                               ),
-                                //                                             ),
-                                //                                             child:
-                                //                                                 ListView.builder(
-                                //                                               itemCount: myList.length,
-                                //                                               itemBuilder: ((BuildContext context, int index) {
-                                //                                                 return Container(
-                                //                                                   alignment: Alignment.center,
-                                //                                                   width: double.infinity,
-                                //                                                   height: 100,
-                                //                                                   decoration: BoxDecoration(color: Colors.black, border: Border.all(width: 2, color: Colors.red)),
-                                //                                                   child: ListTile(
-                                //                                                     leading: InkWell(
-                                //                                                       onTap: () {},
-                                //                                                       child: const Icon(
-                                //                                                         CupertinoIcons.delete,
-                                //                                                         color: Colors.red,
-                                //                                                         size: 25,
-                                //                                                       ),
-                                //                                                     ),
-                                //                                                     title: Text(
-                                //                                                       "1",
-                                //                                                       style: kTextStyle(color: Colors.white, size: 20),
-                                //                                                     ),
-                                //                                                     subtitle: Text(
-                                //                                                       "2",
-                                //                                                       style: kTextStyle(color: Colors.red, size: 18),
-                                //                                                     ),
-                                //                                                   ),
-                                //                                                 );
-                                //                                               }),
-                                //                                             ),
-                                //                                           ),
-                                //                                           GestureDetector(
-                                //                                             onTap: () =>
-                                //                                                 Navigator.pop(context),
-                                //                                             child:
-                                //                                                 Container(
-                                //                                               height: 30,
-                                //                                               width: double.infinity,
-                                //                                               decoration: const BoxDecoration(
-                                //                                                 color: Color(0xffFF0000),
-                                //                                               ),
-                                //                                               child: Image.asset("assets/parenthesis.png"),
-                                //                                             ),
-                                //                                           ),
-                                //                                         ],
-                                //                                       ),
-                                //                                     );
-                                //                                   },
-                                //                                 );
+                              
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       top: 20, left: 110, right: 90),
                                   child: SizedBox(
                                     height: 30.0,
-                                    child: Shimmer.fromColors(
+                                    child: isAnimated?Shimmer.fromColors(
                                       baseColor: bodyBgColor,
                                       highlightColor: white,
-                                      child: const Text(
-                                        'Hello World',
+                                      child: Text(
+                                        animatedText,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 30.0,
                                         ),
                                       ),
-                                    ),
+                                    ):Text(
+                                        animatedText,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                        ),
+                                      ),
                                   ),
                                 ),
                                 Align(
@@ -442,7 +358,13 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                 ),
                                                               ),
                                                               GestureDetector(
-                                                                onTap: () {},
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    hiveKeys.clear();
+                                                                    hiveValues.clear();
+                                                                    box.clear();
+                                                                  });
+                                                                },
                                                                 child: Icon(
                                                                   CupertinoIcons
                                                                       .delete_simple,
@@ -480,7 +402,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                                           child:
                                                               ListView.builder(
                                                             itemCount:
-                                                                myList.length,
+                                                                hiveKeys.length,
                                                             itemBuilder:
                                                                 ((BuildContext
                                                                         context,
@@ -504,7 +426,15 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                   leading:
                                                                       InkWell(
                                                                     onTap:
-                                                                        () {},
+                                                                        () {
+                                                                          setState(() {
+                                                                            hiveKeys.removeAt(index);
+                                                                          hiveValues.removeAt(index);
+                                                                          box.deleteAt(index);
+                                                                            
+                                                                          });
+                                                                          
+                                                                        },
                                                                     child: Icon(
                                                                       CupertinoIcons
                                                                           .delete,
@@ -514,7 +444,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                     ),
                                                                   ),
                                                                   title: Text(
-                                                                    "1",
+                                                                    '${hiveKeys[index]}',
                                                                     style: kTextStyle(
                                                                         color: Colors
                                                                             .white,
@@ -523,13 +453,19 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                   ),
                                                                   subtitle:
                                                                       Text(
-                                                                    "2",
+                                                                    hiveValues[index],
                                                                     style: kTextStyle(
                                                                         color:
                                                                             numbersColor,
                                                                         size:
                                                                             18),
-                                                                  ),
+                                                                            
+                                                                  ),trailing: Text('${box.keys.elementAt(index).substring(0,19)}',
+                                                                    style: kTextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        size:
+                                                                            15),),
                                                                 ),
                                                               );
                                                             }),
@@ -546,7 +482,7 @@ class _HistoryState extends State<History> with HiveUtil {
                               ],
                             ),
                             Expanded(
-                              child: TextField(
+                              child:TextField(
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.end,
                                 controller: userInput,
@@ -573,134 +509,155 @@ class _HistoryState extends State<History> with HiveUtil {
                             )
                           ]),
                     ),
-                    GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: buttons.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4),
-                        itemBuilder: (BuildContext context, int index) {
-                          // del Button
-                          if (index == 3) {
-                            return MyButton(
-                              buttontapped: () {
-                                setState(() {
-                                  if (userInput.text.isEmpty) {
-                                    userInput.text = userInput.text.substring(
-                                        0, userInput.text.length - 1);
-                                  } else {
-                                    userInput.text = '';
-                                  }
-                                  answer.text = '0';
-                                });
-                              },
-                              buttonText: buttons[index],
-                              color: operationsBgColor,
-                              textColor: iconActiveColor,
-                            );
-                            // / button
-                          } else if (index == 2) {
-                            return MyButton(
+                    GestureDetector(
+                       onVerticalDragUpdate: (details) {
+        int sensitivity = 8;
+        if (details.delta.dy > sensitivity) {
+          setState(() {
+             if (onSwapClear){
+              userInput.text='';
+              answer.text='';  
+              setState(() {
+              
+              });
+              
+            }
+          });
+           
+        } else if(details.delta.dy < -sensitivity){
+            // Up Swipe
+        }
+    },
+                      child: GridView.builder(
+                          physics: const BouncingScrollPhysics(), //BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()) красивое прокрутка при up и down
+                          
+                          shrinkWrap: true,
+                          itemCount: buttons.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4),
+                          itemBuilder: (BuildContext context, int index) {
+                            // del Button
+                            if (index == 3) {
+                              return MyButton(
                                 buttontapped: () {
                                   setState(() {
-                                    userInput.text += buttons[index];
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: operationsBgColor,
-                                textColor: iconActiveColor);
-                          }
-                          // x button
-                          else if (index == 7) {
-                            return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    userInput.text += buttons[index];
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: operationsBgColor,
-                                textColor: iconActiveColor);
-                          } else if (index == 1) {
-                            return MyButton(
-                              buttontapped: () {
-                                setState(() {
-                                  if (userInput.text != null ||
-                                      userInput.text != 0) {
-                                    var a = (int.parse(userInput.text) * 0.01)
-                                        .toString();
-                                    // userInput.text += buttons[index];
-                                    answer.text = a;
-
-                                    equalPressed();
-                                  }
-                                  userInput.text = '';
-                                });
-                              },
-                              buttonText: buttons[index],
-                              color: operationsBgColor,
-                              textColor: iconActiveColor,
-                            );
-                          }
-
-                          // = Button
-                          else if (index == 19) {
-                            return MyButton(
-                              buttontapped: () {
-                                setState(() {
-                                  equalPressed();
-                                });
-                              },
-                              buttonText: buttons[index],
-                              color: operationsBgColor,
-                              textColor: iconActiveColor,
-                            );
-                          } else if (index == 18) {
-                            return MyButton(
-                              buttontapped: () {
-                                setState(() {
-                                  if (userInput.text.isNotEmpty) {
-                                    if (!userInput.text.contains('(') &&
-                                        !userInput.text.contains(')')) {
-                                      userInput.text = '(${userInput.text})';
+                                    if (userInput.text.isNotEmpty) {
+                                      userInput.text = userInput.text.substring(
+                                          0, userInput.text.length - 1);
                                     } else {
-                                      if (userInput.text.contains('(')) {
-                                        userInput.text += ')';
-                                      } else {
-                                        userInput.text += '(';
-                                      }
+                                      userInput.text = '';
                                     }
-                                  } else {
-                                    userInput.text = '(';
-                                  }
-                                  ;
-                                });
-                              },
-                              buttonText: buttons[index],
-                              color: numbersBgColor,
-                              textColor: numbersColor,
-                            );
-                          }
-
-                          //  other buttons
-                          else {
-                            return MyButton(
-                              buttontapped: () {
-                                setState(() {
-                                  userInput.text += buttons[index];
-                                });
-                              },
-                              buttonText: buttons[index],
-                              color: isOperator(buttons[index])
-                                  ? operationsBgColor
-                                  : numbersBgColor,
-                              textColor: isOperator(buttons[index])
-                                  ? iconActiveColor
-                                  : numbersColor,
-                            );
-                          }
-                        }),
+                                    answer.text = '0';
+                                  });
+                                },
+                                buttonText: buttons[index],
+                                color: operationsBgColor,
+                                textColor: iconActiveColor,
+                              );
+                              // / button
+                            } else if (index == 2) {
+                              return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      userInput.text += buttons[index];
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor);
+                            }
+                            // x button
+                            else if (index == 7) {
+                              return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      userInput.text += buttons[index];
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor);
+                            } else if (index == 1) {
+                              return MyButton(
+                                buttontapped: () {
+                                  setState(() {
+                                    if (userInput.text != null ||
+                                        userInput.text != 0) {
+                                      var a = (int.parse(userInput.text) * 0.01)
+                                          .toString();
+                                      // userInput.text += buttons[index];
+                                      answer.text = a;
+                    
+                                      equalPressed();
+                                    }
+                                    userInput.text = '';
+                                  });
+                                },
+                                buttonText: buttons[index],
+                                color: operationsBgColor,
+                                textColor: iconActiveColor,
+                              );
+                            }
+                    
+                            // = Button
+                            else if (index == 19) {
+                              return MyButton(
+                                buttontapped: () {
+                                  setState(() {
+                                    equalPressed();
+                                  });
+                                },
+                                buttonText: buttons[index],
+                                color: operationsBgColor,
+                                textColor: iconActiveColor,
+                              );
+                            } else if (index == 18) {
+                              return MyButton(
+                                buttontapped: () {
+                                  setState(() {
+                                    if (userInput.text.isNotEmpty) {
+                                      if (!userInput.text.contains('(') &&
+                                          !userInput.text.contains(')')) {
+                                        userInput.text = '(${userInput.text})';
+                                      } else {
+                                        if (userInput.text.contains('(')) {
+                                          userInput.text += ')';
+                                        } else {
+                                          userInput.text += '(';
+                                        }
+                                      }
+                                    } else {
+                                      userInput.text = '(';
+                                    }
+                                    ;
+                                  });
+                                },
+                                buttonText: buttons[index],
+                                color: numbersBgColor,
+                                textColor: numbersColor,
+                              );
+                            }
+                    
+                            //  other buttons
+                            else {
+                              return MyButton(
+                                buttontapped: () {
+                                  setState(() {
+                                    userInput.text += buttons[index];
+                                  });
+                                },
+                                buttonText: buttons[index],
+                                color: isOperator(buttons[index])
+                                    ? operationsBgColor
+                                    : numbersBgColor,
+                                textColor: isOperator(buttons[index])
+                                    ? iconActiveColor
+                                    : numbersColor,
+                              );
+                            }
+                          }),
+                    ),
                     InkWell(
                         onTap: () {
                           showModalBottomSheet<void>(
@@ -722,6 +679,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               int index) {
                                             if (index == 9) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = pow(
                                                           int.parse(
@@ -734,6 +692,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 10) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = pow(
                                                           int.parse(
@@ -746,6 +705,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 0) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = (int.parse(
                                                               userInput.text) *
@@ -759,6 +719,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 1) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text =
                                                       '${shModButtons[index]}(${userInput.text})';
@@ -767,6 +728,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 2) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text =
                                                       '${shModButtons[index]}(${userInput.text})';
@@ -775,6 +737,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 3) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text =
                                                       '${shModButtons[index]}(${userInput.text})';
@@ -783,6 +746,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 4) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text += '3.14';
                                                 },
@@ -790,6 +754,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 8) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = (1 /
                                                           (int.parse(
@@ -799,31 +764,44 @@ class _HistoryState extends State<History> with HiveUtil {
                                                 buttonText: shModButtons[index],
                                               );
                                             }
-                                            // else if (index == 5) {
-                                            //   return MyButton(
-                                            //     buttontapped: () {
-                                            //       userInput.text =
-                                            //           '${shModButtons[index]}(';
-                                            //     },
-                                            //     buttonText: shModButtons[index],
-                                            //   );
-                                            // }
-                                            // else if (index == 5) {
-                                            //   return MyButton(
-                                            //       buttonText:
-                                            //           shModButtons[index],
-                                            //       buttontapped: () {
-                                            //         var numbers = int.parse(
-                                            //             userInput.text);
+                                            else if (index == 5) {
+                                              return MyButton(
+                                                textColor: iconActiveColor,
+                                                buttontapped: () {
+                                                  var sin=int.parse(userInput.text);
+                                                  userInput.text = '${sinh(sin)}';
+                                                  equalPressed();
+                                                      
+                                                },
+                                                buttonText: shModButtons[index],
+                                              );
+                                            }
+                                            else if (index == 6) {
+                                              return MyButton(
+                                                textColor: iconActiveColor,
+                                                  buttonText:
+                                                      shModButtons[index],
+                                                  buttontapped: () {
+                                                    var cos=int.parse(userInput.text);
+                                                  userInput.text = '${cosh(cos)}';
+                                                  equalPressed();
+                                                  });
+                                            }
+                                             else if (index == 7) {
+                                              return MyButton(
+                                                textColor: iconActiveColor,
+                                                  buttonText:
+                                                      shModButtons[index],
+                                                  buttontapped: () {
+                                                    var tan=int.parse(userInput.text);
+                                                  userInput.text = '${tanh(tan)}';
+                                                  equalPressed();
+                                                  });
+                                            }
 
-                                            //         userInput.text =
-                                            //             sinh(numbers)
-                                            //                 .toString();
-                                            //         equalPressed();
-                                            //       });
-                                            // }
                                             else if (index == 11) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = (exp(
                                                           int.parse(
@@ -834,6 +812,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 12) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text = (log(
                                                           double.parse(
@@ -845,6 +824,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                             } else if (index == 13) {
                                               //не закончен
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text +=
                                                       shModButtons[index];
@@ -853,6 +833,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               );
                                             } else if (index == 14) {
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text +=
                                                       e.toString();
@@ -862,6 +843,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                             } else if (index == 15) {
                                               //не закончен
                                               return MyButton(
+                                                textColor: iconActiveColor,
                                                 buttontapped: () {
                                                   userInput.text +=
                                                       '${shModButtons[index].replaceAll('eⁿ', 'e^')}(';
@@ -871,6 +853,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                             }
 
                                             return MyButton(
+                                              
                                               buttontapped: () {
                                                 setState(() {
                                                   userInput.text +=
@@ -878,14 +861,8 @@ class _HistoryState extends State<History> with HiveUtil {
                                                 });
                                               },
                                               buttonText: shModButtons[index],
-                                              color: isMathOperations(
-                                                      shModButtons[index])
-                                                  ? operationsBgColor
-                                                  : numbersBgColor,
-                                              textColor: isMathOperations(
-                                                      shModButtons[index])
-                                                  ? iconActiveColor
-                                                  : numbersColor,
+                                              color: operationsBgColor,
+                                              textColor: isMathOperations(shModButtons[index])?iconActiveColor:numbersColor,
                                             );
                                           }),
                                     ),
@@ -1074,77 +1051,7 @@ class _HistoryState extends State<History> with HiveUtil {
     );
   }
 
-  // _currencyButtons() {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(15),
-  //     child: Container(
-  //       decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
-  //         BoxShadow(
-  //           blurRadius: 10.0,
-  //           offset: Offset(0.0, 0.75),
-  //         )
-  //       ]),
-  //       child: Container(
-  //         color: black,
-  //         child: GridView.builder(
-  //             physics: const BouncingScrollPhysics(),
-  //             shrinkWrap: true,
-  //             itemCount: numbers.length,
-  //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //               crossAxisCount: 4,
-  //             ),
-  //             itemBuilder: (BuildContext context, int index) {
-  //               // Clear Button
-  //               if (index == 11) {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyTop.text = '';
-  //                       currencyBottom.text = '';
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: iconActiveColor,
-  //                 );
-  //               }
-
-  //               // Delete Button
-  //               else if (index == 3) {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyBottom.text = currencyBottom.text
-  //                           .substring(0, currencyBottom.text.length - 1);
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: iconActiveColor,
-  //                 );
-  //               }
-
-  //               //  other buttons
-  //               else {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyBottom.text += numbers[index];
-  //                       currencyTop.text += numbers[index];
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: isCurrencyOperator(numbers[index])
-  //                       ? iconActiveColor
-  //                       : numbersColor,
-  //                 );
-  //               }
-  //             }),
-  //       ),
-  //     ),
-  //   );
-  // }
+ 
 
   Padding _currencyButtonsRules() {
     return Padding(
@@ -1472,19 +1379,6 @@ class _HistoryState extends State<History> with HiveUtil {
     );
   }
 
-  // Row _listTile(String imageName, String title, String subtitle) {
-  //   return Row(
-  //     children: [
-  //       Image.asset('assets/${imageName}.png'),
-  //       const SizedBox(width: 10),
-  //       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-  //         Text(title, style: kTextstyle(size: 16, color: Colors.white)),
-  //         Text(subtitle, style: kTextstyle(size: 12, color: Colors.white))
-  //       ])
-  //     ],
-  //   );
-  // }
-
   bool isCurrencyOperator(String x) {
     if (x == 'del' || x == 'up/d' || x == 'C') {
       return true;
@@ -1515,10 +1409,18 @@ class _HistoryState extends State<History> with HiveUtil {
     Expression exp = p.parse(finaluserinput);
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
-    if (answer.text is int) {
-      answer.text = eval.toInt().toString();
+    if(minimumTo2Cals){
+    answer.text = eval.toStringAsFixed(2);  
+    
     }
-    answer.text = eval.toString();
+    else{
+    answer.text=eval.toStringAsFixed(0);}
+    
+    hiveKeys.add('${userInput.text}');
+    hiveValues.add('${answer.text}');
+    
+    var date=DateTime.now().toString(); 
+    box.put(date,['${hiveKeys}','${hiveValues}']);    
   }
 
   Widget _itemExch(TextEditingController controller, CurrencyModel? model,
@@ -1629,14 +1531,87 @@ class _HistoryState extends State<History> with HiveUtil {
   }
 
   sinh(num x) {
-    return x = (exp(x) - exp(x)) / 2;
+    return x = (exp(x) - exp(-x)) / 2;
   }
 
   cosh(num x) {
-    return x = (exp(x) + exp(x)) / 2;
+    return x = (exp(x) + exp(-x)) / 2;
   }
 
   tanh(num x) {
     return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
+ 
+
+   // _currencyButtons() {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(15),
+  //     child: Container(
+  //       decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
+  //         BoxShadow(
+  //           blurRadius: 10.0,
+  //           offset: Offset(0.0, 0.75),
+  //         )
+  //       ]),
+  //       child: Container(
+  //         color: black,
+  //         child: GridView.builder(
+  //             physics: const BouncingScrollPhysics(),
+  //             shrinkWrap: true,
+  //             itemCount: numbers.length,
+  //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //               crossAxisCount: 4,
+  //             ),
+  //             itemBuilder: (BuildContext context, int index) {
+  //               // Clear Button
+  //               if (index == 11) {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyTop.text = '';
+  //                       currencyBottom.text = '';
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: iconActiveColor,
+  //                 );
+  //               }
+
+  //               // Delete Button
+  //               else if (index == 3) {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyBottom.text = currencyBottom.text
+  //                           .substring(0, currencyBottom.text.length - 1);
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: iconActiveColor,
+  //                 );
+  //               }
+
+  //               //  other buttons
+  //               else {
+  //                 return MyButton(
+  //                   buttontapped: () {
+  //                     setState(() {
+  //                       currencyBottom.text += numbers[index];
+  //                       currencyTop.text += numbers[index];
+  //                     });
+  //                   },
+  //                   buttonText: numbers[index],
+  //                   color: operationsBgColor,
+  //                   textColor: isCurrencyOperator(numbers[index])
+  //                       ? iconActiveColor
+  //                       : numbersColor,
+  //                 );
+  //               }
+  //             }),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
