@@ -6,6 +6,7 @@ import 'package:best_calculator/currency/hive_util.dart';
 import 'package:best_calculator/utils/list_view_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
@@ -20,20 +21,18 @@ import 'utils/button.dart';
 import 'utils/theme_colors.dart';
 import 'main.dart';
 
-
 class History extends StatefulWidget {
-  History(/*this.,*/{Key? key}) : super(key: key);
+  History(/*this.,*/ {Key? key}) : super(key: key);
   // String animatedText;
   @override
   State<History> createState() => _HistoryState();
 }
 
-class _HistoryState extends State<History> with HiveUtil { 
-
-  
+class _HistoryState extends State<History> with HiveUtil {
   late List hiveValues;
   late List hiveKeys;
 
+  final settingsController = TextEditingController();
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
@@ -53,27 +52,34 @@ class _HistoryState extends State<History> with HiveUtil {
   CurrencyModel? topCur;
   CurrencyModel? bottomCur;
   //---
-  
+
   int activeIndex = 0;
   late Animation animation;
 
   String name = '1';
   //settings
-  bool minimumTo2Cals=false; //.00;
-  bool onSwapClear=true;
-  bool isAnimated=true;
-  bool isWakeLook=false;
+  bool minimumTo2Cals = false; //.00;
+  bool onSwapClear = true;
+  bool isAnimated = true;
+  bool isWakeLook = false;
   //;
-  bool isCheckStatusBar=false;
+  bool isCheckStatusBar = false;
   //---------------------
-  
+  // settings_bools
+  bool switchValue = false;
+  bool switchValue1 = false;
+  bool switchValue2 = false;
+  bool switchValue3 = false;
+  bool switchValue4 = false;
+  bool switchValue5 = false;
+//---------------------
 
   @override
   void initState() {
     super.initState();
     animatedText = "Baxtiyor";
-    hiveKeys=[];
-    hiveValues=[];
+    hiveKeys = [];
+    hiveValues = [];
     //--
     rulesController.text = '1';
     _editingControllerTop.addListener(() {
@@ -192,22 +198,23 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
+
   //-----
   callback(value) {
     setState(() {
-      if(value is String) {
+      if (value is String) {
         animatedText = value;
       }
     });
   }
- 
 
   @override
   Widget build(BuildContext context) {
-    if (isWakeLook){
+    if (isWakeLook) {
       Wakelock.enable();
-    }else{
-    Wakelock.disable();}
+    } else {
+      Wakelock.disable();
+    }
     Size size = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -238,21 +245,295 @@ class _HistoryState extends State<History> with HiveUtil {
                 ],
               ),
             ),
+            endDrawer: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: DefaultTabController(
+                  length: 2,
+                  child: Scaffold(
+                    resizeToAvoidBottomInset: false,
+                    backgroundColor: Colors.grey,
+                    appBar: AppBar(
+                      backgroundColor: Colors.grey,
+                      title: const TabBar(
+                          tabs: [Tab(text: 'Настройки'), Tab(text: 'Tемы')]),
+                    ),
+                    body: TabBarView(children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 20),
+                            Text(
+                              'Изменение текста основного экрана',
+                              style: kTextstyle(
+                                  size: 12,
+                                  color: const Color.fromARGB(255, 53, 53, 59)),
+                            ),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                      height: 34,
+                                      width: 270,
+                                      child: TextField(
+                                        controller: settingsController,
+                                        decoration: InputDecoration(
+                                            hintText: animatedText,
+                                            enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    width: 1,
+                                                    color: Colors.black))),
+                                      )),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          animatedText =
+                                              settingsController.text;
+
+                                          settingsController.text = '';
+                                        });
+
+                                       
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                  blurRadius: 5,
+                                                  color: Colors.black,
+                                                  offset: Offset(1, 2))
+                                            ]),
+                                        child: const Text('OK'),
+                                      ),
+                                    ),
+                                  )
+                                ]),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Минимальная точность',
+                                        style: kTextstyle(
+                                            size: 18, color: Colors.black)),
+                                    Text(
+                                        'Ограничить минимальную точность до 2 цыфр',
+                                        style: kTextstyle(
+                                            size: 12,
+                                            color: const Color.fromARGB(
+                                                255, 53, 53, 59)))
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 7),
+                                    child: Switch(
+                                        value: switchValue,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            switchValue = value;
+                                          });
+                                        }),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Swipe для расчёта',
+                                        style: kTextstyle(
+                                            size: 18, color: Colors.black)),
+                                    Text(
+                                        'Провести палец вниз по клавиатуре, чтобы рассчитывать',
+                                        style: kTextstyle(
+                                            size: 12,
+                                            color: const Color.fromARGB(
+                                                255, 53, 53, 59)))
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 7),
+                                    child: Switch(
+                                        value: switchValue1,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            switchValue1 = value;
+                                          });
+                                        }),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Отключить текстовую анимацию',
+                                        style: kTextstyle(
+                                            size: 18, color: Colors.black)),
+                                    Text(
+                                        'Отключить текстовую анимацию в главном разделе',
+                                        style: kTextstyle(
+                                            size: 12,
+                                            color: const Color.fromARGB(
+                                                255, 53, 53, 59)))
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 7),
+                                    child: Switch(
+                                        value: switchValue2,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            switchValue2 = value;
+                                          });
+                                        }),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Оставить экран включенным',
+                                        style: kTextstyle(
+                                            size: 18, color: Colors.black)),
+                                    Text(
+                                        'Ограничить спящий режим во время работы приложение ',
+                                        style: kTextstyle(
+                                            size: 12,
+                                            color: const Color.fromARGB(
+                                                255, 53, 53, 59)))
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 7),
+                                    child: Switch(
+                                        value: switchValue3,
+                                        onChanged: (value) {
+                                          switchValue3 = value;
+                                        }),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('выключить выбрацию',
+                                    style: kTextstyle(
+                                        size: 18, color: Colors.black)),
+                                Switch(
+                                    value: switchValue4,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        switchValue4 = value;
+                                      });
+                                    })
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('cкрыть статус бар',
+                                    style: kTextstyle(
+                                        size: 18, color: Colors.black)),
+                                Switch(
+                                    value: switchValue5,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        switchValue5 = value;
+                                        if (value) {
+                                          SystemChrome.setEnabledSystemUIMode(
+                                              SystemUiMode.manual,
+                                              overlays: [
+                                                SystemUiOverlay.bottom
+                                              ]);
+                                        } else {
+                                          SystemChrome.setEnabledSystemUIMode(
+                                              SystemUiMode.manual,
+                                              overlays: SystemUiOverlay.values);
+                                        }
+                                      });
+                                    }),
+                              ],
+                            ),
+                            SizedBox(height: 25),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.black,
+                                  child: Text(
+                                    "i",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.italic,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.pushReplacementNamed(
+                                        context, '/about');
+                                  },
+                                  child: Text(
+                                    'О программе',
+                                    style: kTextstyle(
+                                        size: 18, color: Colors.black),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      _themes()
+                    ]),
+                  )),
+            ),
             backgroundColor: bodyBgColor,
             appBar: AppBar(
               iconTheme: IconThemeData(color: iconActiveColor),
               backgroundColor: appBarBgColor,
               actions: [
-                IconButton(
-                    icon: const Icon(
-                      Icons.settings,
-                      size: 28,
-                    ),
-                    onPressed: () {
-                      Navigator.pushNamed(context, Routes.settingPage, arguments: {
-                        'animated_text': animatedText
-                      }).then((value) => callback(value));
-                    }),
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: Icon(Icons.settings, size: 25),
+                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    tooltip:
+                        MaterialLocalizations.of(context).openAppDrawerTooltip,
+                  ),
+                ),
                 const SizedBox(
                   width: 10,
                 )
@@ -283,29 +564,30 @@ class _HistoryState extends State<History> with HiveUtil {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                              
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       top: 20, left: 110, right: 90),
                                   child: SizedBox(
                                     height: 30.0,
-                                    child: isAnimated?Shimmer.fromColors(
-                                      baseColor: bodyBgColor,
-                                      highlightColor: white,
-                                      child: Text(
-                                        animatedText,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 30.0,
-                                        ),
-                                      ),
-                                    ):Text(
-                                        animatedText,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 30.0,
-                                        ),
-                                      ),
+                                    child: isAnimated
+                                        ? Shimmer.fromColors(
+                                            baseColor: bodyBgColor,
+                                            highlightColor: white,
+                                            child: Text(
+                                              animatedText,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 30.0,
+                                              ),
+                                            ),
+                                          )
+                                        : Text(
+                                            animatedText,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 30.0,
+                                            ),
+                                          ),
                                   ),
                                 ),
                                 Align(
@@ -360,8 +642,10 @@ class _HistoryState extends State<History> with HiveUtil {
                                                               GestureDetector(
                                                                 onTap: () {
                                                                   setState(() {
-                                                                    hiveKeys.clear();
-                                                                    hiveValues.clear();
+                                                                    hiveKeys
+                                                                        .clear();
+                                                                    hiveValues
+                                                                        .clear();
                                                                     box.clear();
                                                                   });
                                                                 },
@@ -425,16 +709,17 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                 child: ListTile(
                                                                   leading:
                                                                       InkWell(
-                                                                    onTap:
-                                                                        () {
-                                                                          setState(() {
-                                                                            hiveKeys.removeAt(index);
-                                                                          hiveValues.removeAt(index);
-                                                                          box.deleteAt(index);
-                                                                            
-                                                                          });
-                                                                          
-                                                                        },
+                                                                    onTap: () {
+                                                                      setState(
+                                                                          () {
+                                                                        hiveKeys
+                                                                            .removeAt(index);
+                                                                        hiveValues
+                                                                            .removeAt(index);
+                                                                        box.deleteAt(
+                                                                            index);
+                                                                      });
+                                                                    },
                                                                     child: Icon(
                                                                       CupertinoIcons
                                                                           .delete,
@@ -453,19 +738,23 @@ class _HistoryState extends State<History> with HiveUtil {
                                                                   ),
                                                                   subtitle:
                                                                       Text(
-                                                                    hiveValues[index],
+                                                                    hiveValues[
+                                                                        index],
                                                                     style: kTextStyle(
                                                                         color:
                                                                             numbersColor,
                                                                         size:
                                                                             18),
-                                                                            
-                                                                  ),trailing: Text('${box.keys.elementAt(index).substring(0,19)}',
+                                                                  ),
+                                                                  trailing:
+                                                                      Text(
+                                                                    '${box.keys.elementAt(index).substring(0, 19)}',
                                                                     style: kTextStyle(
                                                                         color: Colors
                                                                             .white,
                                                                         size:
-                                                                            15),),
+                                                                            15),
+                                                                  ),
                                                                 ),
                                                               );
                                                             }),
@@ -482,7 +771,7 @@ class _HistoryState extends State<History> with HiveUtil {
                               ],
                             ),
                             Expanded(
-                              child:TextField(
+                              child: TextField(
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.end,
                                 controller: userInput,
@@ -510,27 +799,24 @@ class _HistoryState extends State<History> with HiveUtil {
                           ]),
                     ),
                     GestureDetector(
-                       onVerticalDragUpdate: (details) {
-        int sensitivity = 8;
-        if (details.delta.dy > sensitivity) {
-          setState(() {
-             if (onSwapClear){
-              userInput.text='';
-              answer.text='';  
-              setState(() {
-              
-              });
-              
-            }
-          });
-           
-        } else if(details.delta.dy < -sensitivity){
-            // Up Swipe
-        }
-    },
+                      onVerticalDragUpdate: (details) {
+                        int sensitivity = 8;
+                        if (details.delta.dy > sensitivity) {
+                          setState(() {
+                            if (onSwapClear) {
+                              userInput.text = '';
+                              answer.text = '';
+                              setState(() {});
+                            }
+                          });
+                        } else if (details.delta.dy < -sensitivity) {
+                          // Up Swipe
+                        }
+                      },
                       child: GridView.builder(
-                          physics: const BouncingScrollPhysics(), //BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()) красивое прокрутка при up и down
-                          
+                          physics:
+                              const BouncingScrollPhysics(), //BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()) красивое прокрутка при up и down
+
                           shrinkWrap: true,
                           itemCount: buttons.length,
                           gridDelegate:
@@ -588,7 +874,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                           .toString();
                                       // userInput.text += buttons[index];
                                       answer.text = a;
-                    
+
                                       equalPressed();
                                     }
                                     userInput.text = '';
@@ -599,7 +885,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                 textColor: iconActiveColor,
                               );
                             }
-                    
+
                             // = Button
                             else if (index == 19) {
                               return MyButton(
@@ -638,7 +924,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                 textColor: numbersColor,
                               );
                             }
-                    
+
                             //  other buttons
                             else {
                               return MyButton(
@@ -763,43 +1049,43 @@ class _HistoryState extends State<History> with HiveUtil {
                                                 },
                                                 buttonText: shModButtons[index],
                                               );
-                                            }
-                                            else if (index == 5) {
+                                            } else if (index == 5) {
                                               return MyButton(
                                                 textColor: iconActiveColor,
                                                 buttontapped: () {
-                                                  var sin=int.parse(userInput.text);
-                                                  userInput.text = '${sinh(sin)}';
+                                                  var sin =
+                                                      int.parse(userInput.text);
+                                                  userInput.text =
+                                                      '${sinh(sin)}';
                                                   equalPressed();
-                                                      
                                                 },
                                                 buttonText: shModButtons[index],
                                               );
-                                            }
-                                            else if (index == 6) {
+                                            } else if (index == 6) {
                                               return MyButton(
-                                                textColor: iconActiveColor,
+                                                  textColor: iconActiveColor,
                                                   buttonText:
                                                       shModButtons[index],
                                                   buttontapped: () {
-                                                    var cos=int.parse(userInput.text);
-                                                  userInput.text = '${cosh(cos)}';
-                                                  equalPressed();
+                                                    var cos = int.parse(
+                                                        userInput.text);
+                                                    userInput.text =
+                                                        '${cosh(cos)}';
+                                                    equalPressed();
                                                   });
-                                            }
-                                             else if (index == 7) {
+                                            } else if (index == 7) {
                                               return MyButton(
-                                                textColor: iconActiveColor,
+                                                  textColor: iconActiveColor,
                                                   buttonText:
                                                       shModButtons[index],
                                                   buttontapped: () {
-                                                    var tan=int.parse(userInput.text);
-                                                  userInput.text = '${tanh(tan)}';
-                                                  equalPressed();
+                                                    var tan = int.parse(
+                                                        userInput.text);
+                                                    userInput.text =
+                                                        '${tanh(tan)}';
+                                                    equalPressed();
                                                   });
-                                            }
-
-                                            else if (index == 11) {
+                                            } else if (index == 11) {
                                               return MyButton(
                                                 textColor: iconActiveColor,
                                                 buttontapped: () {
@@ -853,7 +1139,6 @@ class _HistoryState extends State<History> with HiveUtil {
                                             }
 
                                             return MyButton(
-                                              
                                               buttontapped: () {
                                                 setState(() {
                                                   userInput.text +=
@@ -862,7 +1147,10 @@ class _HistoryState extends State<History> with HiveUtil {
                                               },
                                               buttonText: shModButtons[index],
                                               color: operationsBgColor,
-                                              textColor: isMathOperations(shModButtons[index])?iconActiveColor:numbersColor,
+                                              textColor: isMathOperations(
+                                                      shModButtons[index])
+                                                  ? iconActiveColor
+                                                  : numbersColor,
                                             );
                                           }),
                                     ),
@@ -1050,8 +1338,6 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
-
- 
 
   Padding _currencyButtonsRules() {
     return Padding(
@@ -1409,18 +1695,17 @@ class _HistoryState extends State<History> with HiveUtil {
     Expression exp = p.parse(finaluserinput);
     ContextModel cm = ContextModel();
     double eval = exp.evaluate(EvaluationType.REAL, cm);
-    if(minimumTo2Cals){
-    answer.text = eval.toStringAsFixed(2);  
-    
+    if (minimumTo2Cals) {
+      answer.text = eval.toStringAsFixed(2);
+    } else {
+      answer.text = eval.toStringAsFixed(0);
     }
-    else{
-    answer.text=eval.toStringAsFixed(0);}
-    
+
     hiveKeys.add('${userInput.text}');
     hiveValues.add('${answer.text}');
-    
-    var date=DateTime.now().toString(); 
-    box.put(date,['${hiveKeys}','${hiveValues}']);    
+
+    var date = DateTime.now().toString();
+    box.put(date, ['${hiveKeys}', '${hiveValues}']);
   }
 
   Widget _itemExch(TextEditingController controller, CurrencyModel? model,
@@ -1541,9 +1826,8 @@ class _HistoryState extends State<History> with HiveUtil {
   tanh(num x) {
     return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
- 
 
-   // _currencyButtons() {
+  // _currencyButtons() {
   //   return Padding(
   //     padding: const EdgeInsets.all(15),
   //     child: Container(
