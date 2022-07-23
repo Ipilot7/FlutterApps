@@ -59,16 +59,17 @@ class _HistoryState extends State<History> with HiveUtil {
   String name = '1';
   //settings
   bool minimumTo2Cals = false; //.00;
-  bool onSwapClear = true;
-  bool isAnimated = true;
+  bool onSwapClear = false;
+  bool isAnimated =true;
   bool isWakeLook = false;
-  //;
+  //;выбрация не сделано
   bool isCheckStatusBar = false;
   //---------------------
   // settings_bools
   bool switchValue = false;
   bool switchValue1 = false;
   bool switchValue2 = false;
+  // bool switchValueView=false;
   bool switchValue3 = false;
   bool switchValue4 = false;
   bool switchValue5 = false;
@@ -318,6 +319,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                   )
                                 ]),
                             const SizedBox(height: 20),
+                            
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,6 +346,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue = value;
+                                            minimumTo2Cals=value;
                                           });
                                         }),
                                   ),
@@ -376,6 +379,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue1 = value;
+                                            onSwapClear=value;
                                           });
                                         }),
                                   ),
@@ -408,13 +412,14 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue2 = value;
+                                            isAnimated=!value;
                                           });
                                         }),
                                   ),
                                 )
                               ],
                             ),
-                            Row(
+                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -438,12 +443,16 @@ class _HistoryState extends State<History> with HiveUtil {
                                     child: Switch(
                                         value: switchValue3,
                                         onChanged: (value) {
-                                          switchValue3 = value;
+                                          setState(() {
+                                            switchValue3 = value;
+                                            isWakeLook=value;
+                                          });
                                         }),
                                   ),
                                 )
                               ],
                             ),
+                            
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -455,6 +464,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                     onChanged: (value) {
                                       setState(() {
                                         switchValue4 = value;
+
                                       });
                                     })
                               ],
@@ -625,6 +635,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                                             children: [
                                                               TextButton(
                                                                 onPressed:
+                                                                
                                                                     () {},
                                                                 child: Text(
                                                                   "history",
@@ -1698,7 +1709,7 @@ class _HistoryState extends State<History> with HiveUtil {
     if (minimumTo2Cals) {
       answer.text = eval.toStringAsFixed(2);
     } else {
-      answer.text = eval.toStringAsFixed(0);
+      answer.text = eval.toString();
     }
 
     hiveKeys.add('${userInput.text}');
@@ -1826,76 +1837,4 @@ class _HistoryState extends State<History> with HiveUtil {
   tanh(num x) {
     return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
-
-  // _currencyButtons() {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(15),
-  //     child: Container(
-  //       decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
-  //         BoxShadow(
-  //           blurRadius: 10.0,
-  //           offset: Offset(0.0, 0.75),
-  //         )
-  //       ]),
-  //       child: Container(
-  //         color: black,
-  //         child: GridView.builder(
-  //             physics: const BouncingScrollPhysics(),
-  //             shrinkWrap: true,
-  //             itemCount: numbers.length,
-  //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //               crossAxisCount: 4,
-  //             ),
-  //             itemBuilder: (BuildContext context, int index) {
-  //               // Clear Button
-  //               if (index == 11) {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyTop.text = '';
-  //                       currencyBottom.text = '';
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: iconActiveColor,
-  //                 );
-  //               }
-
-  //               // Delete Button
-  //               else if (index == 3) {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyBottom.text = currencyBottom.text
-  //                           .substring(0, currencyBottom.text.length - 1);
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: iconActiveColor,
-  //                 );
-  //               }
-
-  //               //  other buttons
-  //               else {
-  //                 return MyButton(
-  //                   buttontapped: () {
-  //                     setState(() {
-  //                       currencyBottom.text += numbers[index];
-  //                       currencyTop.text += numbers[index];
-  //                     });
-  //                   },
-  //                   buttonText: numbers[index],
-  //                   color: operationsBgColor,
-  //                   textColor: isCurrencyOperator(numbers[index])
-  //                       ? iconActiveColor
-  //                       : numbersColor,
-  //                 );
-  //               }
-  //             }),
-  //       ),
-  //     ),
-  //   );
-  // }
 }
