@@ -43,25 +43,6 @@ TextStyle kTextStyle({
       height: height);
 }
 
-// ButtonStyle buttonStyle({
-//   Color? color,
-//   Color? shadowColor,
-//   double? elevation,
-//   EdgeInsets? padding,
-//   double? borderRadius,
-//   BorderSide? side,
-//   Size? size,
-// }) {
-//   return ButtonStyle(
-//       backgroundColor: MaterialStateProperty.all(color),
-//       shadowColor: MaterialStateProperty.all(shadowColor),
-//       elevation: MaterialStateProperty.all(elevation),
-//       padding: MaterialStateProperty.all(padding),
-//       minimumSize: MaterialStateProperty.all(size),
-//       shape: MaterialStateProperty.all(
-//         RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius ?? 0), side: side ?? BorderSide.none),
-//       ));
-// }
 
 List<PriceModel> listPrices = [
   PriceModel(name: 'Groceries', date: '5:20 PM', price: 678),

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:best_calculator/currency/currency_model.dart';
-import 'package:best_calculator/currency/hive_util.dart';
+import 'package:best_calculator/utils/hive_util.dart';
 import 'package:best_calculator/utils/list_view_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ import 'package:math_expressions/math_expressions.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wakelock/wakelock.dart';
 import 'currency/constants.dart';
-import 'currency/routes.dart';
+import 'utils/routes.dart';
 import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'utils/button.dart';
@@ -31,16 +31,19 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> with HiveUtil {
   late List hiveValues;
   late List hiveKeys;
+  final rulesController = TextEditingController();
+   final topText = TextEditingController();
+  final bottomText = TextEditingController();
+  int activeIndex = 0;
 
   final settingsController = TextEditingController();
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
   final currencyBottom = TextEditingController();
-  final rulesController = TextEditingController();
+  
   // var isActiveIndex;
-  final topText = TextEditingController();
-  final bottomText = TextEditingController();
+ 
   late String animatedText;
   //---
   final TextEditingController _editingControllerTop = TextEditingController();
@@ -53,7 +56,7 @@ class _HistoryState extends State<History> with HiveUtil {
   CurrencyModel? bottomCur;
   //---
 
-  int activeIndex = 0;
+  
   late Animation animation;
 
   String name = '1';
@@ -78,11 +81,12 @@ class _HistoryState extends State<History> with HiveUtil {
   @override
   void initState() {
     super.initState();
+    rulesController.text = '1';
     animatedText = "Baxtiyor";
     hiveKeys = [];
     hiveValues = [];
     //--
-    rulesController.text = '1';
+    
     _editingControllerTop.addListener(() {
       if (_topFocus.hasFocus) {
         setState(() {
@@ -554,7 +558,7 @@ class _HistoryState extends State<History> with HiveUtil {
                 tabs: [
                   Tab(
                       icon: Icon(Icons.calculate,
-                          color: iconActiveColor, size: 28)),
+                          color: iconActiveColor, size: 28),),
                   Tab(
                       icon: Icon(Icons.monetization_on_outlined,
                           color: iconActiveColor, size: 28)),
@@ -858,6 +862,11 @@ class _HistoryState extends State<History> with HiveUtil {
                                   buttontapped: () {
                                     setState(() {
                                       userInput.text += buttons[index];
+                                      // var a=userInput.text.substring();
+                                      // if (a=='/'){
+                                      //   userInput.text='';
+                                      // }
+                                      
                                     });
                                   },
                                   buttonText: buttons[index],
@@ -1295,26 +1304,10 @@ class _HistoryState extends State<History> with HiveUtil {
                             );
                           }
                         })),
-                    // InkWell(
-                    //     onTap: () {
-                    //       showModalBottomSheet<void>(
-                    //           backgroundColor: bodyBgColor,
-                    //           context: context,
-                    //           builder: (BuildContext context) {
-                    //             return _currencyButtons();
-                    //           });
-                    //     },
-                    //     child: Container(
-                    //       color: iconActiveColor,
-                    //       width: size.width,
-                    //       height: 30,
-                    //     ))
-                    // _currencyButtons(),
+                  
                   ],
                 ),
-                MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  home: DefaultTabController(
+                 DefaultTabController(
                     length: 7,
                     child: Scaffold(
                       resizeToAvoidBottomInset: false,
@@ -1341,7 +1334,6 @@ class _HistoryState extends State<History> with HiveUtil {
                       })),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -1350,204 +1342,14 @@ class _HistoryState extends State<History> with HiveUtil {
     );
   }
 
-  Padding _currencyButtonsRules() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Container(
-        decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
-          BoxShadow(
-            blurRadius: 10.0,
-            offset: Offset(0.0, 0.75),
-          )
-        ]),
-        child: Container(
-          color: black,
-          child: GridView.builder(
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: numbersOfRules.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-              ),
-              itemBuilder: (BuildContext context, int index) {
-                // Clear Button
-                if (index == 7) {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        rulesController.text = '';
-                      });
-                    },
-                    buttonText: numbersOfRules[index],
-                    color: operationsBgColor,
-                    textColor: iconActiveColor,
-                  );
-                }
-
-                // Delete Button
-                else if (index == 3) {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        rulesController.text = rulesController.text
-                            .substring(0, rulesController.text.length - 1);
-                      });
-                    },
-                    buttonText: numbersOfRules[index],
-                    color: operationsBgColor,
-                    textColor: iconActiveColor,
-                  );
-                }
-
-                //  other buttons
-                else {
-                  return MyButton(
-                    buttontapped: () {
-                      setState(() {
-                        rulesController.text += numbersOfRules[index];
-                      });
-                    },
-                    buttonText: numbersOfRules[index],
-                    color: operationsBgColor,
-                    textColor: isCurrencyOperator(numbersOfRules[index])
-                        ? iconActiveColor
-                        : numbersColor,
-                  );
-                }
-              }),
-        ),
-      ),
-    );
-  }
-
-  Column _tabs(Map mapName) {
-    return Column(
-      children: [
-        Container(
-            color: appBarBgColor,
-            height: 170,
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(topText.text,
-                                  style: kTextstyle(
-                                      size: 16, color: iconActiveColor)),
-                              Text(
-                                bottomText.text,
-                                style: kTextstyle(
-                                    size: 38, color: iconActiveColor),
-                              ),
-                            ],
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Icon(
-                              Icons.expand_more,
-                              color: numbersColor,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      showModalBottomSheet(
-                          backgroundColor: bodyBgColor,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return ListView.builder(
-                                itemCount: mapName.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return InkWell(
-                                    onTap: () {
-                                      activeIndex = index;
-                                      topText.text =
-                                          mapName.keys.elementAt(activeIndex);
-                                      bottomText.text = mapName.values
-                                          .elementAt(activeIndex)[0];
-
-                                      Navigator.pop(context);
-                                      setState(() {});
-                                    },
-                                    child: Container(
-                                      color: index.isOdd
-                                          ? numbersBgColor
-                                          : listViewColor,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 13, vertical: 12),
-                                      child: ListTile(
-                                        title: Text(
-                                          mapName.keys.elementAt(index),
-                                          style: kTextstyle(
-                                              size: 12,
-                                              color: listViewTextColor),
-                                        ),
-                                        subtitle: Text(
-                                            "${mapName.values.elementAt(index)[0]}",
-                                            style: kTextstyle(
-                                                size: 24,
-                                                color: listViewTextColor)),
-                                        trailing: activeIndex == index
-                                            ? Icon(Icons.done,
-                                                color: Colors.green)
-                                            : null,
-                                      ),
-                                    ),
-                                  );
-                                });
-                          });
-                    },
-                  ),
-                  Expanded(
-                      child: TextField(
-                    readOnly: true,
-                    keyboardType: TextInputType.number,
-                    onTap: () {
-                      showModalBottomSheet(
-                          backgroundColor: bodyBgColor,
-                          context: context,
-                          builder: (BuildContext contex) {
-                            return _currencyButtonsRules();
-                          });
-                    },
-                    controller: rulesController,
-                    textAlign: TextAlign.end,
-                    style: TextStyle(color: iconActiveColor, fontSize: 38),
-                  ))
-                ])),
-        Expanded(
-          child: ListView.builder(
-              itemCount: mapName.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (bottomText.text == mapName.values.elementAt(index)[0]) {
-                  return Container();
-                } else {
-                  return listTile3page(
-                      mapName.keys.elementAt(index),
-                      "${mapName.values.elementAt(index)[0]}",
-                      '${mapName.values.elementAt(index)[1] * num.parse(rulesController.text == "" ? "1" : rulesController.text)}',
-                      index);
-                }
-              }),
-        ),
-      ],
-    );
-  }
+  
+ 
 
   GridView _themes() {
     return GridView.builder(
         physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
-        itemCount: 10,
+        itemCount: 9,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 10,
@@ -1624,7 +1426,24 @@ class _HistoryState extends State<History> with HiveUtil {
                     white = white5;
                     listViewColor = listViewColor51;
                     break;
-                  case 8:
+                  case 6:
+                    appBarBgColor = appBarBgColor6;
+                    drawerBGColor = drawerBGColor6;
+                    iconActiveColor = iconActiveColor6;
+                    iconColor = iconActiveColor6;
+                    bodyBgColor = bodyBgColor6;
+                    numbersBgColor = numbersBgColorNoGradient6;
+                    // numbersColor = numbersColor6;
+                    resulColor = resulColor6;
+                    // operationsBgColor = operationsBgColor6;
+                    // black = black61;
+                    fromCurrencyColor = fromCurrencyColor6;
+                    inCurrencyColor = inCurrencyColor6;
+                    // white = white6;
+                    listViewColor = listViewColor61;
+                    listViewTextColor=listViewTextcolor6;
+                    break;
+                  case 7:
                     appBarBgColor = appBarBgColor8;
                     drawerBGColor = drawerBGColor8;
                     iconActiveColor = iconActiveColor8;
@@ -1640,6 +1459,22 @@ class _HistoryState extends State<History> with HiveUtil {
                     white = white8;
                     listViewColor = listViewColor81;
                     break;
+                   case 8:
+                    appBarBgColor = black9;
+                    drawerBGColor = drawerBGColor9;
+                    iconActiveColor = white9;
+                    iconColor = iconColor9;
+                    bodyBgColor = black;
+                    numbersBgColor = black;
+                    numbersColor = white;
+                    resulColor = white;
+                    operationsBgColor = black;                    
+                    fromCurrencyColor = white;
+                    inCurrencyColor = white;
+                    listViewTextColor=listViewTextColor9;
+                    listViewColor = drawerBGColor9;
+                    
+                    break;
                 }
               });
             },
@@ -1650,8 +1485,226 @@ class _HistoryState extends State<History> with HiveUtil {
           );
         });
   }
+ Column _tabs(Map mapName) {                                       
+    return Column(
+      children: [
+        Container(
+            color: appBarBgColor,
+            height: 170,
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(topText.text,
+                                  style: kTextstyle(
+                                      size: 16, color: iconActiveColor)),
+                              Text(
+                                bottomText.text,
+                                style: kTextstyle(
+                                    size: 38, color: iconActiveColor),
+                              ),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Icon(
+                              Icons.expand_more,
+                              color: numbersColor,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      
+                                    
+                      showModalBottomSheet(
+                          backgroundColor: bodyBgColor,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ListView.builder(
+                                itemCount: mapName.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return InkWell(
+                                    onTap: () {
 
-  listTile3page(String title, String subtitle, String trailing, int index) {
+                                  setState(() {});
+
+                                      activeIndex = index;
+                                      topText.text =
+                                          mapName.keys.elementAt(activeIndex);
+                                      bottomText.text = mapName.values
+                                          .elementAt(activeIndex)[0];
+                                      
+
+                                      Navigator.pop(context);
+                                     
+                                    },
+                                    child: Container(
+                                      color: index.isOdd
+                                          ? numbersBgColor
+                                          : listViewColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 13, vertical: 12),
+                                      child: ListTile(
+                                        title: Text(
+                                          mapName.keys.elementAt(index),
+                                          style: kTextstyle(
+                                              size: 12,
+                                              color: listViewTextColor),
+                                        ),
+                                        subtitle: Text(
+                                            "${mapName.values.elementAt(index)[0]}",
+                                            style: kTextstyle(
+                                                size: 24,
+                                                color: listViewTextColor)),
+                                        trailing: activeIndex == index
+                                            ? Icon(Icons.done,
+                                                color: Colors.green)
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                });
+                          });
+                      
+                    },
+                  ),
+                  Expanded(
+                      child: TextField(
+                    readOnly: true,
+                    keyboardType: TextInputType.number,
+                    onTap: () {
+                      showModalBottomSheet(
+                          backgroundColor: bodyBgColor,
+                          context: context,
+                          builder: (BuildContext contex) {
+                            return _currencyButtonsRules();
+                          });
+                    },
+                    controller: rulesController,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(color: iconActiveColor, fontSize: 38),
+                  ))
+                ])),
+        Expanded(
+          child: ListView.builder(
+              itemCount: mapName.length,
+              itemBuilder: (BuildContext context, int index) {
+                
+                if (bottomText.text == mapName.values.elementAt(index)[0]) {
+                  return Container();
+                } else {
+                  return listTile3page(
+                      mapName.keys.elementAt(index),
+                      "${mapName.values.elementAt(index)[0]}",
+                      '${mapName.values.elementAt(index)[1] * num.parse(rulesController.text == "" ? "1" : rulesController.text)}',
+                      index);
+                }
+              }),
+        ),
+      ],
+    );
+  }
+  Padding _currencyButtonsRules() {
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: Container(
+        decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
+          BoxShadow(
+            blurRadius: 10.0,
+            offset: Offset(0.0, 0.75),
+          )
+        ]),
+        child: Container(
+          color: black,
+          child: GridView.builder(
+              physics: const BouncingScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: numbersOfRules.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+              ),
+              itemBuilder: (BuildContext context, int index) {
+                // Clear Button
+                if (index == 7) {
+                  return MyButton(
+                    buttontapped: () {
+                      setState(() {
+                        rulesController.text = '';
+                      });
+                    },
+                    buttonText: numbersOfRules[index],
+                    color: operationsBgColor,
+                    textColor: iconActiveColor,
+                  );
+                }
+                else if(index==11){
+                  return MyButton(
+                     buttonText: numbersOfRules[index],
+                    color: operationsBgColor,
+                    textColor: iconActiveColor,
+                    buttontapped: (){
+                      
+                      setState(() {
+                        Navigator.pop(context);
+                      });
+                    },
+
+                  );
+                }
+
+                // Delete Button
+                else if (index == 3) {
+                  return MyButton(
+                    buttontapped: () {
+                      setState(() {
+                        rulesController.text = rulesController.text
+                            .substring(0, rulesController.text.length - 1);
+                      });
+                    },
+                    buttonText: numbersOfRules[index],
+                    color: operationsBgColor,
+                    textColor: iconActiveColor,
+                  );
+                }
+
+                //  other buttons
+                else {
+                  return MyButton(
+                    buttontapped: () {
+                      setState(() {
+                        rulesController.text += numbersOfRules[index];
+                      });
+                    },
+                    buttonText: numbersOfRules[index],
+                    color: operationsBgColor,
+                    textColor: isCurrencyOperator(numbersOfRules[index])
+                        ? iconActiveColor
+                        : numbersColor,
+                  );
+                }
+              }),
+        ),
+      ),
+    );
+  }
+   bool isCurrencyOperator(String x) {
+    if (x == 'del' || x == 'up/d' || x == 'C') {
+      return true;
+    }
+    return false;
+  }
+ listTile3page(String title, String subtitle, String trailing, int index) {
     return InkWell(
       onTap: () {},
       child: Container(
@@ -1675,14 +1728,8 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
-
-  bool isCurrencyOperator(String x) {
-    if (x == 'del' || x == 'up/d' || x == 'C') {
-      return true;
-    }
-    return false;
-  }
-
+ 
+ 
   bool isOperator(String x) {
     if (x == '/' ||
         x == 'x' ||

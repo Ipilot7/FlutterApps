@@ -1,9 +1,9 @@
 import 'package:best_calculator/about.dart';
-
+import 'package:best_calculator/currency/currency_page.dart';
 import 'package:flutter/material.dart';
 import 'package:best_calculator/history.dart';
 
-import 'currency_page.dart';
+
 
 
 class Routes {
@@ -12,6 +12,7 @@ class Routes {
   static const settingPage = "/settingPage";
   static const history='/';
   static const about='/about';
+  
 
 
   static Route<dynamic> generateRoute(RouteSettings routeSettings) {
@@ -22,6 +23,7 @@ class Routes {
        
         case history:
           return MaterialPageRoute(builder: (context) => History());
+            
          case about:
           return MaterialPageRoute(builder: (context) => const About());       
         case currencyPage:

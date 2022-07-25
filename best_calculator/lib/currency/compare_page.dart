@@ -2,15 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:best_calculator/currency/constants.dart';
+import 'package:best_calculator/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import '../utils/hive_util.dart';
+
 import 'currency_model.dart';
-import 'constants.dart';
-import 'hive_util.dart';
-import 'routes.dart';
+
 
 class ComparePage extends StatefulWidget {
   const ComparePage({Key? key}) : super(key: key);

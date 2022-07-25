@@ -108,7 +108,7 @@ Color bodyBgColor3 = const Color(0xffd5d5d5);
 Color numberColor3 = const Color(0xff656565);
 Color numbersBgColor3 = const Color(0xfff1efed);
 Color resulColor3 = const Color(0xff777777);
-Color operationsBgColor3 = const Color(0xff333333);
+Color operationsBgColor3 = const Color(0xffa7a6a6);
 Color black31 = Colors.black;
 Color fromCurrencyColor3 = const Color(0xff00E0FF);
 Color inCurrencyColor3 = const Color(0xffFF4D00);
@@ -116,10 +116,12 @@ Color white3 = Colors.white;
 Color listViewColor3 = const Color(0xffdcdcdc);
 Color listViewColor32 = const Color(0xffc7c7c7);
 
-// theme 9
-Color maincolor9 = Colors.black;
-Color iconActiveColor9 = Colors.white;
+// theme 8
+Color black9 = Colors.black;
+Color white9 = Colors.white;
 Color iconColor9 = const Color(0xffe5e5e5);
+Color drawerBGColor9= Color(0xff2D2D2D);
+Color listViewTextColor9=white;
 // blur9 = 10,
 
 //theme five
@@ -139,3 +141,27 @@ Color white5 = Colors.white;
 Color listViewColor52 = const Color(0xff161616);
 Color listViewColor51 = const Color(0xff262626);
 Color listViewTextcolor = const Color(0xffDADADA);
+
+//theme7
+Color appBarBgColor6 = const Color(0xff191919);
+
+Color drawerBGColor6 = const Color(0xff004055);
+Color iconActiveColor6 = const Color(0xff02C4F4);
+Color iconColor6 = const Color(0xff0694B8);
+Color bodyBgColor6 = const Color(0xff111111);
+Gradient numbersBgColor6=const LinearGradient(
+    colors: [Color(0xff01232F), Color(0xff111111)],
+    stops: [0, 1.931],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter);
+Color numbersBgColorNoGradient6 = const Color(0xff01232F);
+// Color numbersColor7 = const Color(0xffDADADA);
+Color resulColor6 = const Color(0xff02C4F4);
+// Color operationsBgColor7 = const Color(0xff161616);
+
+Color fromCurrencyColor6 = resulColor6;
+Color inCurrencyColor6 = resulColor6;
+
+Color listViewColor6 = const Color(0xff002734);
+Color listViewColor61 = const Color(0xff024056);
+Color listViewTextcolor6= const Color(0xffBBBBBB);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'currency/routes.dart';
+import 'utils/routes.dart';
 
 late Box box;
 late Box box2;
