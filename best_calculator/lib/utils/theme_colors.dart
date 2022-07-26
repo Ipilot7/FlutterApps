@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+Color currencyColor =const Color(0xff2d334d);
+
 //Base theme
 Color appBarBgColor = const Color(0xff1F2229);
 Color drawerBGColor = const Color(0xff263558);

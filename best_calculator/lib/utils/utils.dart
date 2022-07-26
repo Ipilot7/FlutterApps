@@ -26,7 +26,7 @@ final List<String> numbers = [
   '7',
   '8',
   '9',
-  'del',
+  'DEL',
   '4',
   '5',
   '6',
@@ -37,9 +37,9 @@ final List<String> numbers = [
   'C',
   ',',
   '0',
-  '00',
-  ''
+  '00',  
 ];
+
 final List<String> shModButtons = [
   'RAD',
   'sin',
@@ -97,3 +97,20 @@ const colorizeTextStyle = TextStyle(
   fontSize: 50.0,
   fontFamily: 'Horizon',
 );
+
+String distance='метр';
+ String area='квадратный метр';
+ String mass='килограмм'; 
+ String volume='кубический м'; 
+ String  temperature='Целсия';
+  String fuel='км/л';
+  String coocking='миллилитр';
+ late  List meashureNames = [distance, area, mass, volume,temperature,fuel,coocking];
+String distance2='m';
+ String area2='m²';
+ String mass2='kg'; 
+ String volume2='m³'; 
+ String  temperature2='C';
+  String fuel2='km / L';
+  String coocking2='mL (cc)';
+  late List meashureNames2=[distance2, area2, mass2, volume2,temperature2,fuel2,coocking2];

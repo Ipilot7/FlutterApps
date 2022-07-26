@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wakelock/wakelock.dart';
+import 'currency/compare_page.dart';
 import 'currency/constants.dart';
 import 'utils/routes.dart';
 import 'utils/constants.dart';
@@ -22,8 +23,7 @@ import 'utils/theme_colors.dart';
 import 'main.dart';
 
 class History extends StatefulWidget {
-  History(/*this.,*/ {Key? key}) : super(key: key);
-  // String animatedText;
+  const History( {Key? key}) : super(key: key);
   @override
   State<History> createState() => _HistoryState();
 }
@@ -32,17 +32,15 @@ class _HistoryState extends State<History> with HiveUtil {
   late List hiveValues;
   late List hiveKeys;
   final rulesController = TextEditingController();
-   final topText = TextEditingController();
-  final bottomText = TextEditingController();
+   
   int activeIndex = 0;
+  int lowIndex=0;
 
   final settingsController = TextEditingController();
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
   final currencyBottom = TextEditingController();
-  
-  // var isActiveIndex;
  
   late String animatedText;
   //---
@@ -55,7 +53,6 @@ class _HistoryState extends State<History> with HiveUtil {
   CurrencyModel? topCur;
   CurrencyModel? bottomCur;
   //---
-
   
   late Animation animation;
 
@@ -78,8 +75,12 @@ class _HistoryState extends State<History> with HiveUtil {
   bool switchValue5 = false;
 //---------------------
 
+  
+
   @override
+  
   void initState() {
+     
     super.initState();
     rulesController.text = '1';
     animatedText = "Baxtiyor";
@@ -115,11 +116,11 @@ class _HistoryState extends State<History> with HiveUtil {
         });
       }
     });
-    //---
+    //---   
   }
 
   @override
-  void dispose() {
+  void dispose() {    
     rulesController.dispose();
     //---
     _editingControllerTop.dispose();
@@ -212,7 +213,7 @@ class _HistoryState extends State<History> with HiveUtil {
       }
     });
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     if (isWakeLook) {
@@ -268,7 +269,7 @@ class _HistoryState extends State<History> with HiveUtil {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Text(
                               'Изменение текста основного экрана',
                               style: kTextstyle(
@@ -286,7 +287,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         controller: settingsController,
                                         decoration: InputDecoration(
                                             hintText: animatedText,
-                                            enabledBorder: OutlineInputBorder(
+                                            enabledBorder: const OutlineInputBorder(
                                                 borderSide: BorderSide(
                                                     width: 1,
                                                     color: Colors.black))),
@@ -300,6 +301,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               settingsController.text;
 
                                           settingsController.text = '';
+                                          
                                         });
 
                                        
@@ -542,7 +544,7 @@ class _HistoryState extends State<History> with HiveUtil {
               actions: [
                 Builder(
                   builder: (context) => IconButton(
-                    icon: Icon(Icons.settings, size: 25),
+                    icon: const Icon(Icons.settings, size: 25),
                     onPressed: () => Scaffold.of(context).openEndDrawer(),
                     tooltip:
                         MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -590,7 +592,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                             child: Text(
                                               animatedText,
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 30.0,
                                               ),
                                             ),
@@ -598,7 +600,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         : Text(
                                             animatedText,
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 30.0,
                                             ),
                                           ),
@@ -682,7 +684,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                                               0.775,
                                                           decoration:
                                                               BoxDecoration(
-                                                            color: Color(
+                                                            color: const Color(
                                                                 0xff262626),
                                                             border: Border(
                                                               top: BorderSide(
@@ -860,14 +862,11 @@ class _HistoryState extends State<History> with HiveUtil {
                             } else if (index == 2) {
                               return MyButton(
                                   buttontapped: () {
-                                    setState(() {
-                                      userInput.text += buttons[index];
-                                      // var a=userInput.text.substring();
-                                      // if (a=='/'){
-                                      //   userInput.text='';
-                                      // }
-                                      
-                                    });
+                                    if(!isOperator(userInput.text[userInput.text.length-1])){
+                                    userInput.text+=buttons[index];   
+                                    }
+                                    userInput.text+='';
+                                   
                                   },
                                   buttonText: buttons[index],
                                   color: operationsBgColor,
@@ -878,17 +877,51 @@ class _HistoryState extends State<History> with HiveUtil {
                               return MyButton(
                                   buttontapped: () {
                                     setState(() {
-                                      userInput.text += buttons[index];
+                                       if(!isOperator(userInput.text[userInput.text.length-1])){
+                                    userInput.text+=buttons[index];   
+                                    }
+                                    userInput.text+='';
                                     });
                                   },
                                   buttonText: buttons[index],
                                   color: operationsBgColor,
                                   textColor: iconActiveColor);
-                            } else if (index == 1) {
+                            } 
+                            // - button
+                             else if (index == 11) {
+                              return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                       if(!isOperator(userInput.text[userInput.text.length-1])){
+                                    userInput.text+=buttons[index];   
+                                    }
+                                    userInput.text+='';
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor);
+                            }
+                            // + button
+                             else if (index == 15) {
+                              return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                       if(!isOperator(userInput.text[userInput.text.length-1])){
+                                    userInput.text+=buttons[index];   
+                                    }
+                                    userInput.text+='';
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor);
+                            }
+                            else if (index == 1) {
                               return MyButton(
                                 buttontapped: () {
                                   setState(() {
-                                    if (userInput.text != null ||
+                                    if (userInput.text.isNotEmpty ||
                                         userInput.text != 0) {
                                       var a = (int.parse(userInput.text) * 0.01)
                                           .toString();
@@ -1185,129 +1218,8 @@ class _HistoryState extends State<History> with HiveUtil {
                         ))
                   ],
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FutureBuilder(
-                        future: _listCurrency.isEmpty ? _loadData() : null,
-                        builder: ((context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(14),
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 25, horizontal: 12),
-                              decoration: BoxDecoration(
-                                boxShadow: const [
-                                  BoxShadow(
-                                    blurRadius: 10.0,
-                                    offset: Offset(0.0, 0.75),
-                                  )
-                                ],
-                                color: numbersBgColor,
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Exchange',
-                                        style: kTextStyle(
-                                            size: 16,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      IconButton(
-                                        onPressed: () {},
-                                        iconSize: 20,
-                                        icon: const Icon(
-                                          Icons.settings,
-                                          size: 20,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          _itemExch(_editingControllerTop,
-                                              topCur, _topFocus, ((value) {
-                                            if (value is CurrencyModel) {
-                                              setState(() => topCur = value);
-                                            }
-                                          })),
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                          _itemExch(
-                                              _editingControllerBottom,
-                                              bottomCur,
-                                              _bottomFocus, ((value) {
-                                            if (value is CurrencyModel) {
-                                              setState(() => bottomCur = value);
-                                            }
-                                          })),
-                                        ],
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            var model = topCur?.copyWith();
-                                            topCur = bottomCur?.copyWith();
-                                            bottomCur = model;
-                                            _editingControllerTop.clear();
-                                            _editingControllerBottom.clear();
-                                          });
-                                        },
-                                        child: Container(
-                                          height: 35,
-                                          width: 35,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xff2d334d),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                                color: Colors.white12),
-                                          ),
-                                          child: const Icon(
-                                            Icons.currency_exchange,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Expanded(
-                              child: Center(
-                                child: Text(
-                                  'Error',
-                                  style: kTextStyle(size: 18),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return const Expanded(
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            );
-                          }
-                        })),
-                  
-                  ],
-                ),
-                 DefaultTabController(
+                ComparePage(),                
+                DefaultTabController(
                     length: 7,
                     child: Scaffold(
                       resizeToAvoidBottomInset: false,
@@ -1329,8 +1241,10 @@ class _HistoryState extends State<History> with HiveUtil {
                         ),
                       ),
                       body: TabBarView(
-                          children: List.generate(ruleMenu.length, (index) {
-                        return _tabs(mapNames[index]);
+                          children: 
+                          List.generate(mapNames.length, (index) {                             
+                           
+                        return _tabs(mapNames[index],index);
                       })),
                     ),
                   ),
@@ -1485,7 +1399,8 @@ class _HistoryState extends State<History> with HiveUtil {
           );
         });
   }
- Column _tabs(Map mapName) {                                       
+ Column _tabs(Map mapName, int index) { 
+    int nowIndex=index;                              
     return Column(
       children: [
         Container(
@@ -1504,11 +1419,13 @@ class _HistoryState extends State<History> with HiveUtil {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Text(topText.text,
+                              Text(meashureNames[index],
+                                
+                                  
                                   style: kTextstyle(
                                       size: 16, color: iconActiveColor)),
-                              Text(
-                                bottomText.text,
+                              Text(meashureNames2[index],
+                                
                                 style: kTextstyle(
                                     size: 38, color: iconActiveColor),
                               ),
@@ -1537,16 +1454,16 @@ class _HistoryState extends State<History> with HiveUtil {
                                   return InkWell(
                                     onTap: () {
 
-                                  setState(() {});
-
+                                  setState(() {
                                       activeIndex = index;
-                                      topText.text =
+                                      meashureNames[nowIndex] =
                                           mapName.keys.elementAt(activeIndex);
-                                      bottomText.text = mapName.values
+                                      meashureNames2[nowIndex] = mapName.values
                                           .elementAt(activeIndex)[0];
                                       
 
-                                      Navigator.pop(context);
+                                      Navigator.pop(context);});
+                                      
                                      
                                     },
                                     child: Container(
@@ -1601,7 +1518,7 @@ class _HistoryState extends State<History> with HiveUtil {
               itemCount: mapName.length,
               itemBuilder: (BuildContext context, int index) {
                 
-                if (bottomText.text == mapName.values.elementAt(index)[0]) {
+                if (meashureNames2[nowIndex] == mapName.values.elementAt(index)[0]) {
                   return Container();
                 } else {
                   return listTile3page(
@@ -1884,4 +1801,5 @@ class _HistoryState extends State<History> with HiveUtil {
   tanh(num x) {
     return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
+
 }

@@ -3,14 +3,18 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:best_calculator/currency/constants.dart';
+import 'package:best_calculator/utils/customButton.dart';
 import 'package:best_calculator/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import '../utils/button.dart';
 import '../utils/hive_util.dart';
 
+import '../utils/theme_colors.dart';
+import '../utils/utils.dart';
 import 'currency_model.dart';
 
 
@@ -22,6 +26,7 @@ class ComparePage extends StatefulWidget {
 }
 
 class _ComparePageState extends State<ComparePage> with HiveUtil {
+ 
   final TextEditingController _editingControllerTop = TextEditingController();
   final TextEditingController _editingControllerBottom =
       TextEditingController();
@@ -148,6 +153,7 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
 
   @override
   Widget build(BuildContext context) {
+     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color(0xff1f2235),
       body: SafeArea(
@@ -155,42 +161,6 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: 'Hello Javoh,\n',
-                      style: kTextStyle(size: 16),
-                      children: [
-                        TextSpan(
-                          text: 'Wellcome Back',
-                          style:
-                              kTextStyle(size: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(25),
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white12),
-                      ),
-                      child: const Icon(
-                        Icons.more_vert,
-                        size: 25,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
-              ),
               FutureBuilder(
                   future: _listCurrency.isEmpty ? _loadData() : null,
                   builder: ((context, snapshot) {
@@ -199,9 +169,14 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         margin: const EdgeInsets.symmetric(vertical: 25),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff2d334d),
-                          borderRadius: BorderRadius.circular(20),
+                        decoration: const BoxDecoration(
+                          color:  Color(0xff2d334d),                          
+                          boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 10.0,
+                                    offset: Offset(0.0, 0.75),
+                                  )
+                                ],
                         ),
                         child: Column(
                           children: [
@@ -246,32 +221,8 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                                     })),
                                   ],
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      var model = topCur?.copyWith();
-                                      topCur = bottomCur?.copyWith();
-                                      bottomCur = model;
-                                      _editingControllerTop.clear();
-                                      _editingControllerBottom.clear();
-                                    });
-                                  },
-                                  child: Container(
-                                    height: 35,
-                                    width: 35,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xff2d334d),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white12),
-                                    ),
-                                    child: const Icon(
-                                      Icons.currency_exchange,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                )
+
+                            
                               ],
                             )
                           ],
@@ -295,9 +246,228 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                         ),
                       );
                     }
-                  }))
+                  })),
+            _currencyButtonsRules(),
+
             ],
           ),
+        ),
+      ),
+    );
+  }
+   Padding _currencyButtonsRules() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10
+      ),
+      child: Container(
+        decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
+          BoxShadow(
+            blurRadius: 10.0,
+            offset: Offset(0.0, 0.75),
+          )
+        ]),
+        child: Container(
+          color: black,
+          child:
+          Column(
+            children: [
+              Row(children: [
+                Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[0];
+                            });
+                          },
+                          buttonText: numbers[0],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                   Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[1];
+                            });
+                          },
+                          buttonText: numbers[1],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[2];
+                            });
+                          },
+                          buttonText: numbers[2],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(
+                  child: MyCustomButton(//DEL -------------------------------------------------------------------------
+                          buttontapped: () {
+                            setState(() {
+                              if(_editingControllerTop.text.isNotEmpty){_editingControllerTop.text = _editingControllerTop.text.substring(0,_editingControllerTop.text.length-1);}
+                              
+                            });
+                          },
+                          buttonText: numbers[3],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+              ],),
+              Row(children: [
+              Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[4];
+                            });
+                          },
+                          buttonText: numbers[4],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                    Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[5];
+                            });
+                          },
+                          buttonText: numbers[5],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[6];
+                            });
+                          },
+                          buttonText: numbers[6],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(//up/d -=-=====================================================
+                  child: MyCustomButton(
+                          buttontapped: () {
+                             setState(() {
+                                      var model = topCur?.copyWith();
+                                      topCur = bottomCur?.copyWith();
+                                      bottomCur = model;
+                                      _editingControllerTop.clear();
+                                      _editingControllerBottom.clear();
+                                    
+                                  },
+                            );
+                          },
+                          buttonText: numbers[7],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+              ],),
+              Row(children: [
+               Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[8];
+                            });
+                          },
+                          buttonText: numbers[8],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                      Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[9];
+                            });
+                          },
+                          buttonText: numbers[9],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[10];
+                            });
+                          },
+                          buttonText: numbers[10],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),Expanded( // C ----------------------------------------------------------------------------
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text = '';
+                            });
+                          },
+                          buttonText: numbers[11],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+              ],),
+              Row(children: [
+               Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[12];
+                            });
+                          },
+                          buttonText: numbers[12],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                     Expanded(
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[13];
+                            });
+                          },
+                          buttonText: numbers[13],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+                    Expanded(flex: 2,
+                  child: MyCustomButton(
+                          buttontapped: () {
+                            setState(() {
+                              _editingControllerTop.text += numbers[14];
+                            });
+                          },
+                          buttonText: numbers[14],
+                          color: currencyColor,
+                          textColor: white,
+                        ),
+                ),
+              ],),
+            ],
+          )
+        
         ),
       ),
     );
@@ -310,7 +480,7 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.white12),
-          borderRadius: BorderRadius.circular(15)),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -319,6 +489,7 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
             children: [
               Flexible(
                 child: TextField(
+                  readOnly: true,
                   controller: controller,
                   focusNode: focusNode,
                   style: kTextStyle(size: 24, fontWeight: FontWeight.bold),
