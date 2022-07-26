@@ -1,22 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:best_calculator/currency/constants.dart';
-import 'package:best_calculator/utils/customButton.dart';
+import 'package:best_calculator/utils/custom_button.dart';
 import 'package:best_calculator/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import '../utils/button.dart';
 import '../utils/hive_util.dart';
-
 import '../utils/theme_colors.dart';
 import '../utils/utils.dart';
 import 'currency_model.dart';
-
 
 class ComparePage extends StatefulWidget {
   const ComparePage({Key? key}) : super(key: key);
@@ -26,7 +21,6 @@ class ComparePage extends StatefulWidget {
 }
 
 class _ComparePageState extends State<ComparePage> with HiveUtil {
- 
   final TextEditingController _editingControllerTop = TextEditingController();
   final TextEditingController _editingControllerBottom =
       TextEditingController();
@@ -153,7 +147,7 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
 
   @override
   Widget build(BuildContext context) {
-     Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color(0xff1f2235),
       body: SafeArea(
@@ -170,13 +164,13 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                         padding: const EdgeInsets.all(14),
                         margin: const EdgeInsets.symmetric(vertical: 25),
                         decoration: const BoxDecoration(
-                          color:  Color(0xff2d334d),                          
+                          color: Color(0xff2d334d),
                           boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 10.0,
-                                    offset: Offset(0.0, 0.75),
-                                  )
-                                ],
+                            BoxShadow(
+                              blurRadius: 10.0,
+                              offset: Offset(0.0, 0.75),
+                            )
+                          ],
                         ),
                         child: Column(
                           children: [
@@ -221,8 +215,6 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                                     })),
                                   ],
                                 ),
-
-                            
                               ],
                             )
                           ],
@@ -247,33 +239,33 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                       );
                     }
                   })),
-            _currencyButtonsRules(),
-
+              _currencyButtonsRules(),
             ],
           ),
         ),
       ),
     );
   }
-   Padding _currencyButtonsRules() {
+
+  Padding _currencyButtonsRules() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10
-      ),
-      child: Container(
-        decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
-          BoxShadow(
-            blurRadius: 10.0,
-            offset: Offset(0.0, 0.75),
-          )
-        ]),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Expanded(
         child: Container(
-          color: black,
-          child:
-          Column(
-            children: [
-              Row(children: [
-                Expanded(
-                  child: MyCustomButton(
+          decoration: BoxDecoration(color: operationsBgColor, boxShadow: const [
+            BoxShadow(
+              blurRadius: 10.0,
+              offset: Offset(0.0, 0.75),
+            )
+          ]),
+          child: Container(
+              color: black,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[0];
@@ -283,9 +275,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                   Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[1];
@@ -295,9 +287,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[2];
@@ -307,24 +299,32 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(
-                  child: MyCustomButton(//DEL -------------------------------------------------------------------------
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
+                          //DEL -------------------------------------------------------------------------
                           buttontapped: () {
                             setState(() {
-                              if(_editingControllerTop.text.isNotEmpty){_editingControllerTop.text = _editingControllerTop.text.substring(0,_editingControllerTop.text.length-1);}
-                              
+                              if (_editingControllerTop.text.isNotEmpty) {
+                                _editingControllerTop.text =
+                                    _editingControllerTop.text.substring(
+                                        0,
+                                        _editingControllerTop.text.length -
+                                            1);
+                              }
                             });
                           },
                           buttonText: numbers[3],
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-              ],),
-              Row(children: [
-              Expanded(
-                  child: MyCustomButton(
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[4];
@@ -334,9 +334,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                    Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[5];
@@ -346,9 +346,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[6];
@@ -358,29 +358,32 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(//up/d -=-=====================================================
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        //up/d -=-=====================================================
+                        child: MyCustomButton(
                           buttontapped: () {
-                             setState(() {
-                                      var model = topCur?.copyWith();
-                                      topCur = bottomCur?.copyWith();
-                                      bottomCur = model;
-                                      _editingControllerTop.clear();
-                                      _editingControllerBottom.clear();
-                                    
-                                  },
+                            setState(
+                              () {
+                                var model = topCur?.copyWith();
+                                topCur = bottomCur?.copyWith();
+                                bottomCur = model;
+                                _editingControllerTop.clear();
+                                _editingControllerBottom.clear();
+                              },
                             );
                           },
                           buttonText: numbers[7],
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-              ],),
-              Row(children: [
-               Expanded(
-                  child: MyCustomButton(
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[8];
@@ -390,9 +393,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
+                      ),
                       Expanded(
-                  child: MyCustomButton(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[9];
@@ -402,9 +405,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[10];
@@ -414,8 +417,10 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),Expanded( // C ----------------------------------------------------------------------------
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        // C ----------------------------------------------------------------------------
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text = '';
@@ -425,11 +430,13 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-              ],),
-              Row(children: [
-               Expanded(
-                  child: MyCustomButton(
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[12];
@@ -439,9 +446,9 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                     Expanded(
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[13];
@@ -451,9 +458,10 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-                    Expanded(flex: 2,
-                  child: MyCustomButton(
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: MyCustomButton(
                           buttontapped: () {
                             setState(() {
                               _editingControllerTop.text += numbers[14];
@@ -463,11 +471,11 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
                           color: currencyColor,
                           textColor: white,
                         ),
-                ),
-              ],),
-            ],
-          )
-        
+                      ),
+                    ],
+                  ),
+                ],
+              )),
         ),
       ),
     );
@@ -479,8 +487,8 @@ class _ComparePageState extends State<ComparePage> with HiveUtil {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.white12),
-          ),
+        border: Border.all(color: Colors.white12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

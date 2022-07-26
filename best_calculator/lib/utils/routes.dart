@@ -22,7 +22,7 @@ class Routes {
       switch (routeSettings.name) {
        
         case history:
-          return MaterialPageRoute(builder: (context) => History());
+          return MaterialPageRoute(builder: (context) => const History());
             
          case about:
           return MaterialPageRoute(builder: (context) => const About());       
@@ -31,10 +31,10 @@ class Routes {
               builder: (context) => CurrencyPage(args?['list_curreny'], args?['top_cur'], args?['bottom_cur']));
        
         default:
-          return MaterialPageRoute(builder: (context) => History());
+          return MaterialPageRoute(builder: (context) => const History());
       }
     } catch (e) {
-      return MaterialPageRoute(builder: (context) => History());
+      return MaterialPageRoute(builder: (context) => const History());
     }
   }
 }

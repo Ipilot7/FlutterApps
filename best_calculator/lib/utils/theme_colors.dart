@@ -122,7 +122,7 @@ Color listViewColor32 = const Color(0xffc7c7c7);
 Color black9 = Colors.black;
 Color white9 = Colors.white;
 Color iconColor9 = const Color(0xffe5e5e5);
-Color drawerBGColor9= Color(0xff2D2D2D);
+Color drawerBGColor9= const Color(0xff2D2D2D);
 Color listViewTextColor9=white;
 // blur9 = 10,
 

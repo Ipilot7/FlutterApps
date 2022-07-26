@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:best_calculator/currency/currency_model.dart';
 import 'package:best_calculator/utils/hive_util.dart';
@@ -7,15 +5,11 @@ import 'package:best_calculator/utils/list_view_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart';
-import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wakelock/wakelock.dart';
 import 'currency/compare_page.dart';
 import 'currency/constants.dart';
-import 'utils/routes.dart';
 import 'utils/constants.dart';
 import 'utils/utils.dart';
 import 'utils/button.dart';
@@ -23,7 +17,7 @@ import 'utils/theme_colors.dart';
 import 'main.dart';
 
 class History extends StatefulWidget {
-  const History( {Key? key}) : super(key: key);
+  const History({Key? key}) : super(key: key);
   @override
   State<History> createState() => _HistoryState();
 }
@@ -32,16 +26,16 @@ class _HistoryState extends State<History> with HiveUtil {
   late List hiveValues;
   late List hiveKeys;
   final rulesController = TextEditingController();
-   
+
   int activeIndex = 0;
-  int lowIndex=0;
+  int lowIndex = 0;
 
   final settingsController = TextEditingController();
   final userInput = TextEditingController();
   final answer = TextEditingController();
   final currencyTop = TextEditingController();
   final currencyBottom = TextEditingController();
- 
+
   late String animatedText;
   //---
   final TextEditingController _editingControllerTop = TextEditingController();
@@ -49,18 +43,18 @@ class _HistoryState extends State<History> with HiveUtil {
       TextEditingController();
   final FocusNode _topFocus = FocusNode();
   final FocusNode _bottomFocus = FocusNode();
-  List<CurrencyModel> _listCurrency = [];
+
   CurrencyModel? topCur;
   CurrencyModel? bottomCur;
   //---
-  
+
   late Animation animation;
 
   String name = '1';
   //settings
   bool minimumTo2Cals = false; //.00;
   bool onSwapClear = false;
-  bool isAnimated =true;
+  bool isAnimated = true;
   bool isWakeLook = false;
   //;выбрация не сделано
   bool isCheckStatusBar = false;
@@ -75,19 +69,15 @@ class _HistoryState extends State<History> with HiveUtil {
   bool switchValue5 = false;
 //---------------------
 
-  
-
   @override
-  
   void initState() {
-     
     super.initState();
     rulesController.text = '1';
     animatedText = "Baxtiyor";
     hiveKeys = [];
     hiveValues = [];
     //--
-    
+
     _editingControllerTop.addListener(() {
       if (_topFocus.hasFocus) {
         setState(() {
@@ -116,11 +106,11 @@ class _HistoryState extends State<History> with HiveUtil {
         });
       }
     });
-    //---   
+    //---
   }
 
   @override
-  void dispose() {    
+  void dispose() {
     rulesController.dispose();
     //---
     _editingControllerTop.dispose();
@@ -131,89 +121,6 @@ class _HistoryState extends State<History> with HiveUtil {
     super.dispose();
   }
 
-  //-----
-  Future<bool?> _loadData() async {
-    var isLoad = await loadLocalData();
-    if (isLoad) {
-      try {
-        var response = await get(
-            Uri.parse('https://cbu.uz/uz/arkhiv-kursov-valyut/json/'));
-        if (response.statusCode == 200) {
-          for (final item in jsonDecode(response.body)) {
-            var model = CurrencyModel.fromJson(item);
-            if (model.ccy == 'USD') {
-              topCur = model;
-            } else if (model.ccy == 'RUB') {
-              bottomCur = model;
-            }
-            _listCurrency.add(model);
-            await saveBox<String>(dateBox, topCur?.date ?? '', key: dateKey);
-            await saveBox<List<dynamic>>(currencyBox, _listCurrency,
-                key: currencyListKey);
-          }
-          return true;
-        } else {
-          _showMessage('Unknown error');
-        }
-      } on SocketException {
-        _showMessage('Connection error');
-      } catch (e) {
-        _showMessage(e.toString());
-      }
-    } else {
-      return true;
-    }
-    return null;
-  }
-
-  Future<bool> loadLocalData() async {
-    try {
-      var date = await getBox<String>(dateBox, key: dateKey);
-      if (date ==
-          DateFormat('dd.MM.yyyy')
-              .format(DateTime.now().add(const Duration(days: -1)))) {
-        var list =
-            await getBox<List<dynamic>>(currencyBox, key: currencyListKey) ??
-                [];
-        _listCurrency = List.castFrom<dynamic, CurrencyModel>(list);
-        for (var model in _listCurrency) {
-          if (model.ccy == 'USD') {
-            topCur = model;
-          } else if (model.ccy == 'RUB') {
-            bottomCur = model;
-          }
-        }
-        return false;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      _showMessage(e.toString());
-    }
-    return true;
-  }
-
-  _showMessage(String text, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: isError ? Colors.red : Colors.green[400],
-        content: Text(
-          text,
-          style: kTextStyle(size: 15, fontWeight: FontWeight.w500),
-        ),
-      ),
-    );
-  }
-
-  //-----
-  callback(value) {
-    setState(() {
-      if (value is String) {
-        animatedText = value;
-      }
-    });
-  }
- 
   @override
   Widget build(BuildContext context) {
     if (isWakeLook) {
@@ -287,10 +194,11 @@ class _HistoryState extends State<History> with HiveUtil {
                                         controller: settingsController,
                                         decoration: InputDecoration(
                                             hintText: animatedText,
-                                            enabledBorder: const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    width: 1,
-                                                    color: Colors.black))),
+                                            enabledBorder:
+                                                const OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        width: 1,
+                                                        color: Colors.black))),
                                       )),
                                   Padding(
                                     padding: const EdgeInsets.only(right: 10),
@@ -301,10 +209,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                               settingsController.text;
 
                                           settingsController.text = '';
-                                          
                                         });
-
-                                       
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
@@ -325,7 +230,6 @@ class _HistoryState extends State<History> with HiveUtil {
                                   )
                                 ]),
                             const SizedBox(height: 20),
-                            
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +256,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue = value;
-                                            minimumTo2Cals=value;
+                                            minimumTo2Cals = value;
                                           });
                                         }),
                                   ),
@@ -385,7 +289,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue1 = value;
-                                            onSwapClear=value;
+                                            onSwapClear = value;
                                           });
                                         }),
                                   ),
@@ -418,14 +322,14 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue2 = value;
-                                            isAnimated=!value;
+                                            isAnimated = !value;
                                           });
                                         }),
                                   ),
                                 )
                               ],
                             ),
-                             Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -451,14 +355,13 @@ class _HistoryState extends State<History> with HiveUtil {
                                         onChanged: (value) {
                                           setState(() {
                                             switchValue3 = value;
-                                            isWakeLook=value;
+                                            isWakeLook = value;
                                           });
                                         }),
                                   ),
                                 )
                               ],
                             ),
-                            
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -470,7 +373,6 @@ class _HistoryState extends State<History> with HiveUtil {
                                     onChanged: (value) {
                                       setState(() {
                                         switchValue4 = value;
-
                                       });
                                     })
                               ],
@@ -501,7 +403,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                     }),
                               ],
                             ),
-                            SizedBox(height: 25),
+                            const SizedBox(height: 25),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -559,8 +461,9 @@ class _HistoryState extends State<History> with HiveUtil {
                 indicatorColor: iconActiveColor,
                 tabs: [
                   Tab(
-                      icon: Icon(Icons.calculate,
-                          color: iconActiveColor, size: 28),),
+                    icon:
+                        Icon(Icons.calculate, color: iconActiveColor, size: 28),
+                  ),
                   Tab(
                       icon: Icon(Icons.monetization_on_outlined,
                           color: iconActiveColor, size: 28)),
@@ -641,7 +544,6 @@ class _HistoryState extends State<History> with HiveUtil {
                                                             children: [
                                                               TextButton(
                                                                 onPressed:
-                                                                
                                                                     () {},
                                                                 child: Text(
                                                                   "history",
@@ -830,172 +732,178 @@ class _HistoryState extends State<History> with HiveUtil {
                           // Up Swipe
                         }
                       },
-                      child: GridView.builder(
-                          physics:
-                              const BouncingScrollPhysics(), //BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()) красивое прокрутка при up и down
+                      child: Expanded(
+                        child: GridView.builder(
+                            physics:
+                                const BouncingScrollPhysics(), //BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()) красивое прокрутка при up и down
 
-                          shrinkWrap: true,
-                          itemCount: buttons.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4),
-                          itemBuilder: (BuildContext context, int index) {
-                            // del Button
-                            if (index == 3) {
-                              return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    if (userInput.text.isNotEmpty) {
-                                      userInput.text = userInput.text.substring(
-                                          0, userInput.text.length - 1);
-                                    } else {
-                                      userInput.text = '';
-                                    }
-                                    answer.text = '0';
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: operationsBgColor,
-                                textColor: iconActiveColor,
-                              );
-                              // / button
-                            } else if (index == 2) {
-                              return MyButton(
-                                  buttontapped: () {
-                                    if(!isOperator(userInput.text[userInput.text.length-1])){
-                                    userInput.text+=buttons[index];   
-                                    }
-                                    userInput.text+='';
-                                   
-                                  },
-                                  buttonText: buttons[index],
-                                  color: operationsBgColor,
-                                  textColor: iconActiveColor);
-                            }
-                            // x button
-                            else if (index == 7) {
-                              return MyButton(
+                            shrinkWrap: true,
+                            itemCount: buttons.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4),
+                            itemBuilder: (BuildContext context, int index) {
+                              // del Button
+                              if (index == 3) {
+                                return MyButton(
                                   buttontapped: () {
                                     setState(() {
-                                       if(!isOperator(userInput.text[userInput.text.length-1])){
-                                    userInput.text+=buttons[index];   
-                                    }
-                                    userInput.text+='';
-                                    });
-                                  },
-                                  buttonText: buttons[index],
-                                  color: operationsBgColor,
-                                  textColor: iconActiveColor);
-                            } 
-                            // - button
-                             else if (index == 11) {
-                              return MyButton(
-                                  buttontapped: () {
-                                    setState(() {
-                                       if(!isOperator(userInput.text[userInput.text.length-1])){
-                                    userInput.text+=buttons[index];   
-                                    }
-                                    userInput.text+='';
-                                    });
-                                  },
-                                  buttonText: buttons[index],
-                                  color: operationsBgColor,
-                                  textColor: iconActiveColor);
-                            }
-                            // + button
-                             else if (index == 15) {
-                              return MyButton(
-                                  buttontapped: () {
-                                    setState(() {
-                                       if(!isOperator(userInput.text[userInput.text.length-1])){
-                                    userInput.text+=buttons[index];   
-                                    }
-                                    userInput.text+='';
-                                    });
-                                  },
-                                  buttonText: buttons[index],
-                                  color: operationsBgColor,
-                                  textColor: iconActiveColor);
-                            }
-                            else if (index == 1) {
-                              return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    if (userInput.text.isNotEmpty ||
-                                        userInput.text != 0) {
-                                      var a = (int.parse(userInput.text) * 0.01)
-                                          .toString();
-                                      // userInput.text += buttons[index];
-                                      answer.text = a;
-
-                                      equalPressed();
-                                    }
-                                    userInput.text = '';
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: operationsBgColor,
-                                textColor: iconActiveColor,
-                              );
-                            }
-
-                            // = Button
-                            else if (index == 19) {
-                              return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    equalPressed();
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: operationsBgColor,
-                                textColor: iconActiveColor,
-                              );
-                            } else if (index == 18) {
-                              return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    if (userInput.text.isNotEmpty) {
-                                      if (!userInput.text.contains('(') &&
-                                          !userInput.text.contains(')')) {
-                                        userInput.text = '(${userInput.text})';
+                                      if (userInput.text.isNotEmpty) {
+                                        userInput.text = userInput.text
+                                            .substring(
+                                                0, userInput.text.length - 1);
                                       } else {
-                                        if (userInput.text.contains('(')) {
-                                          userInput.text += ')';
-                                        } else {
-                                          userInput.text += '(';
-                                        }
+                                        userInput.text = '';
                                       }
-                                    } else {
-                                      userInput.text = '(';
-                                    }
-                                    ;
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: numbersBgColor,
-                                textColor: numbersColor,
-                              );
-                            }
+                                      answer.text = '0';
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor,
+                                );
+                                // / button
+                              } else if (index == 2) {
+                                return MyButton(
+                                    buttontapped: () {
+                                      if (!isOperator(userInput
+                                          .text[userInput.text.length - 1])) {
+                                        userInput.text += buttons[index];
+                                      }
+                                      userInput.text += '';
+                                    },
+                                    buttonText: buttons[index],
+                                    color: operationsBgColor,
+                                    textColor: iconActiveColor);
+                              }
+                              // x button
+                              else if (index == 7) {
+                                return MyButton(
+                                    buttontapped: () {
+                                      setState(() {
+                                        if (!isOperator(userInput
+                                            .text[userInput.text.length - 1])) {
+                                          userInput.text += buttons[index];
+                                        }
+                                        userInput.text += '';
+                                      });
+                                    },
+                                    buttonText: buttons[index],
+                                    color: operationsBgColor,
+                                    textColor: iconActiveColor);
+                              }
+                              // - button
+                              else if (index == 11) {
+                                return MyButton(
+                                    buttontapped: () {
+                                      setState(() {
+                                        if (!isOperator(userInput
+                                            .text[userInput.text.length - 1])) {
+                                          userInput.text += buttons[index];
+                                        }
+                                        userInput.text += '';
+                                      });
+                                    },
+                                    buttonText: buttons[index],
+                                    color: operationsBgColor,
+                                    textColor: iconActiveColor);
+                              }
+                              // + button
+                              else if (index == 15) {
+                                return MyButton(
+                                    buttontapped: () {
+                                      setState(() {
+                                        if (!isOperator(userInput
+                                            .text[userInput.text.length - 1])) {
+                                          userInput.text += buttons[index];
+                                        }
+                                        userInput.text += '';
+                                      });
+                                    },
+                                    buttonText: buttons[index],
+                                    color: operationsBgColor,
+                                    textColor: iconActiveColor);
+                              } else if (index == 1) {
+                                return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      if (userInput.text.isNotEmpty ||
+                                          userInput.text != '0') {
+                                        var a =
+                                            (int.parse(userInput.text) * 0.01)
+                                                .toString();
 
-                            //  other buttons
-                            else {
-                              return MyButton(
-                                buttontapped: () {
-                                  setState(() {
-                                    userInput.text += buttons[index];
-                                  });
-                                },
-                                buttonText: buttons[index],
-                                color: isOperator(buttons[index])
-                                    ? operationsBgColor
-                                    : numbersBgColor,
-                                textColor: isOperator(buttons[index])
-                                    ? iconActiveColor
-                                    : numbersColor,
-                              );
-                            }
-                          }),
+                                        answer.text = a;
+
+                                        equalPressed();
+                                      }
+                                      userInput.text = '';
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor,
+                                );
+                              }
+
+                              // = Button
+                              else if (index == 19) {
+                                return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      equalPressed();
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: operationsBgColor,
+                                  textColor: iconActiveColor,
+                                );
+                              } else if (index == 18) {
+                                return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      if (userInput.text.isNotEmpty) {
+                                        if (!userInput.text.contains('(') &&
+                                            !userInput.text.contains(')')) {
+                                          userInput.text =
+                                              '(${userInput.text})';
+                                        } else {
+                                          if (userInput.text.contains('(')) {
+                                            userInput.text += ')';
+                                          } else {
+                                            userInput.text += '(';
+                                          }
+                                        }
+                                      } else {
+                                        userInput.text = '(';
+                                      }
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: numbersBgColor,
+                                  textColor: numbersColor,
+                                );
+                              }
+
+                              //  other buttons
+                              else {
+                                return MyButton(
+                                  buttontapped: () {
+                                    setState(() {
+                                      userInput.text += buttons[index];
+                                    });
+                                  },
+                                  buttonText: buttons[index],
+                                  color: isOperator(buttons[index])
+                                      ? operationsBgColor
+                                      : numbersBgColor,
+                                  textColor: isOperator(buttons[index])
+                                      ? iconActiveColor
+                                      : numbersColor,
+                                );
+                              }
+                            }),
+                      ),
                     ),
                     InkWell(
                         onTap: () {
@@ -1004,7 +912,7 @@ class _HistoryState extends State<History> with HiveUtil {
                               context: context,
                               builder: (BuildContext context) {
                                 return Column(
-                                  children: [
+                                  children: <Widget>[
                                     Container(
                                       child: GridView.builder(
                                           physics:
@@ -1218,36 +1126,34 @@ class _HistoryState extends State<History> with HiveUtil {
                         ))
                   ],
                 ),
-                ComparePage(),                
+                const ComparePage(),
                 DefaultTabController(
-                    length: 7,
-                    child: Scaffold(
-                      resizeToAvoidBottomInset: false,
-                      backgroundColor: bodyBgColor,
-                      appBar: AppBar(
-                        backgroundColor: appBarBgColor,
-                        title: TabBar(
-                          indicatorColor: iconActiveColor,
-                          labelColor: iconActiveColor,
-                          isScrollable: true,
-                          tabs: List.generate(
-                            ruleMenu.length,
-                            (index) {
-                              return Tab(
-                                text: ruleMenu[index],
-                              );
-                            },
-                          ),
+                  length: 7,
+                  child: Scaffold(
+                    resizeToAvoidBottomInset: false,
+                    backgroundColor: bodyBgColor,
+                    appBar: AppBar(
+                      backgroundColor: appBarBgColor,
+                      title: TabBar(
+                        indicatorColor: iconActiveColor,
+                        labelColor: iconActiveColor,
+                        isScrollable: true,
+                        tabs: List.generate(
+                          ruleMenu.length,
+                          (index) {
+                            return Tab(
+                              text: ruleMenu[index],
+                            );
+                          },
                         ),
                       ),
-                      body: TabBarView(
-                          children: 
-                          List.generate(mapNames.length, (index) {                             
-                           
-                        return _tabs(mapNames[index],index);
-                      })),
                     ),
+                    body: TabBarView(
+                        children: List.generate(mapNames.length, (index) {
+                      return _tabs(mapNames[index], index);
+                    })),
                   ),
+                ),
               ],
             ),
           ),
@@ -1255,9 +1161,6 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
-
-  
- 
 
   GridView _themes() {
     return GridView.builder(
@@ -1355,7 +1258,7 @@ class _HistoryState extends State<History> with HiveUtil {
                     inCurrencyColor = inCurrencyColor6;
                     // white = white6;
                     listViewColor = listViewColor61;
-                    listViewTextColor=listViewTextcolor6;
+                    listViewTextColor = listViewTextcolor6;
                     break;
                   case 7:
                     appBarBgColor = appBarBgColor8;
@@ -1373,7 +1276,7 @@ class _HistoryState extends State<History> with HiveUtil {
                     white = white8;
                     listViewColor = listViewColor81;
                     break;
-                   case 8:
+                  case 8:
                     appBarBgColor = black9;
                     drawerBGColor = drawerBGColor9;
                     iconActiveColor = white9;
@@ -1382,12 +1285,12 @@ class _HistoryState extends State<History> with HiveUtil {
                     numbersBgColor = black;
                     numbersColor = white;
                     resulColor = white;
-                    operationsBgColor = black;                    
+                    operationsBgColor = black;
                     fromCurrencyColor = white;
                     inCurrencyColor = white;
-                    listViewTextColor=listViewTextColor9;
+                    listViewTextColor = listViewTextColor9;
                     listViewColor = drawerBGColor9;
-                    
+
                     break;
                 }
               });
@@ -1399,8 +1302,9 @@ class _HistoryState extends State<History> with HiveUtil {
           );
         });
   }
- Column _tabs(Map mapName, int index) { 
-    int nowIndex=index;                              
+
+  Column _tabs(Map mapName, int index) {
+    int nowIndex = index;
     return Column(
       children: [
         Container(
@@ -1420,12 +1324,10 @@ class _HistoryState extends State<History> with HiveUtil {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Text(meashureNames[index],
-                                
-                                  
                                   style: kTextstyle(
                                       size: 16, color: iconActiveColor)),
-                              Text(meashureNames2[index],
-                                
+                              Text(
+                                meashureNames2[index],
                                 style: kTextstyle(
                                     size: 38, color: iconActiveColor),
                               ),
@@ -1442,8 +1344,6 @@ class _HistoryState extends State<History> with HiveUtil {
                       ),
                     ),
                     onTap: () {
-                      
-                                    
                       showModalBottomSheet(
                           backgroundColor: bodyBgColor,
                           context: context,
@@ -1453,18 +1353,16 @@ class _HistoryState extends State<History> with HiveUtil {
                                 itemBuilder: (BuildContext context, int index) {
                                   return InkWell(
                                     onTap: () {
+                                      setState(() {
+                                        activeIndex = index;
+                                        meashureNames[nowIndex] =
+                                            mapName.keys.elementAt(activeIndex);
+                                        meashureNames2[nowIndex] = mapName
+                                            .values
+                                            .elementAt(activeIndex)[0];
 
-                                  setState(() {
-                                      activeIndex = index;
-                                      meashureNames[nowIndex] =
-                                          mapName.keys.elementAt(activeIndex);
-                                      meashureNames2[nowIndex] = mapName.values
-                                          .elementAt(activeIndex)[0];
-                                      
-
-                                      Navigator.pop(context);});
-                                      
-                                     
+                                        Navigator.pop(context);
+                                      });
                                     },
                                     child: Container(
                                       color: index.isOdd
@@ -1485,7 +1383,7 @@ class _HistoryState extends State<History> with HiveUtil {
                                                 size: 24,
                                                 color: listViewTextColor)),
                                         trailing: activeIndex == index
-                                            ? Icon(Icons.done,
+                                            ? const Icon(Icons.done,
                                                 color: Colors.green)
                                             : null,
                                       ),
@@ -1493,7 +1391,6 @@ class _HistoryState extends State<History> with HiveUtil {
                                   );
                                 });
                           });
-                      
                     },
                   ),
                   Expanded(
@@ -1517,8 +1414,8 @@ class _HistoryState extends State<History> with HiveUtil {
           child: ListView.builder(
               itemCount: mapName.length,
               itemBuilder: (BuildContext context, int index) {
-                
-                if (meashureNames2[nowIndex] == mapName.values.elementAt(index)[0]) {
+                if (meashureNames2[nowIndex] ==
+                    mapName.values.elementAt(index)[0]) {
                   return Container();
                 } else {
                   return listTile3page(
@@ -1532,6 +1429,7 @@ class _HistoryState extends State<History> with HiveUtil {
       ],
     );
   }
+
   Padding _currencyButtonsRules() {
     return Padding(
       padding: const EdgeInsets.all(15),
@@ -1564,19 +1462,16 @@ class _HistoryState extends State<History> with HiveUtil {
                     color: operationsBgColor,
                     textColor: iconActiveColor,
                   );
-                }
-                else if(index==11){
+                } else if (index == 11) {
                   return MyButton(
-                     buttonText: numbersOfRules[index],
+                    buttonText: numbersOfRules[index],
                     color: operationsBgColor,
                     textColor: iconActiveColor,
-                    buttontapped: (){
-                      
+                    buttontapped: () {
                       setState(() {
                         Navigator.pop(context);
                       });
                     },
-
                   );
                 }
 
@@ -1615,13 +1510,15 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
-   bool isCurrencyOperator(String x) {
+
+  bool isCurrencyOperator(String x) {
     if (x == 'del' || x == 'up/d' || x == 'C') {
       return true;
     }
     return false;
   }
- listTile3page(String title, String subtitle, String trailing, int index) {
+
+  listTile3page(String title, String subtitle, String trailing, int index) {
     return InkWell(
       onTap: () {},
       child: Container(
@@ -1645,8 +1542,7 @@ class _HistoryState extends State<History> with HiveUtil {
       ),
     );
   }
- 
- 
+
   bool isOperator(String x) {
     if (x == '/' ||
         x == 'x' ||
@@ -1676,88 +1572,11 @@ class _HistoryState extends State<History> with HiveUtil {
       answer.text = eval.toString();
     }
 
-    hiveKeys.add('${userInput.text}');
-    hiveValues.add('${answer.text}');
+    hiveKeys.add(userInput.text);
+    hiveValues.add(answer.text);
 
     var date = DateTime.now().toString();
-    box.put(date, ['${hiveKeys}', '${hiveValues}']);
-  }
-
-  Widget _itemExch(TextEditingController controller, CurrencyModel? model,
-      FocusNode focusNode, Function callback) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  style: kTextStyle(size: 24, fontWeight: FontWeight.bold),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    isDense: true,
-                    hintText: '0.00',
-                    hintStyle:
-                        kTextStyle(size: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, Routes.currencyPage,
-                    arguments: {
-                      'list_curreny': _listCurrency,
-                      'top_cur': topCur?.ccy,
-                      'bottom_cur': bottomCur?.ccy
-                    }).then(((value) => callback(value))),
-                child: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.blueGrey),
-                  child: Row(children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: SvgPicture.asset(
-                        'assets/flags/${model?.ccy?.substring(0, 2).toLowerCase()}.svg',
-                        height: 20,
-                        width: 20,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5, right: 10),
-                      child: Text(
-                        model?.ccy ?? 'UNK',
-                        style:
-                            kTextStyle(size: 16, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.white54,
-                      size: 15,
-                    )
-                  ]),
-                ),
-              )
-            ],
-          ),
-          Text(
-            controller.text.isNotEmpty
-                ? (double.parse(controller.text) * 0.05).toStringAsFixed(2)
-                : '0.00',
-            style:
-                kTextStyle(fontWeight: FontWeight.w600, color: Colors.white54),
-          )
-        ],
-      ),
-    );
+    box.put(date, [hiveKeys, hiveValues]);
   }
 
   bool isMathOperations(String x) {
@@ -1801,5 +1620,4 @@ class _HistoryState extends State<History> with HiveUtil {
   tanh(num x) {
     return x = ((exp(2 * x) - 1)) / ((exp(2 * x) + 1));
   }
-
 }
